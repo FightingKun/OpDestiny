@@ -48,31 +48,6 @@ public class EightChar {
         }
     };
 
-    public static final Map<String, String> CHONG = new HashMap<String, String>() {
-        {
-            put("子", "午");
-            put("午", "子");
-            put("丑", "未");
-            put("未", "丑");
-            put("寅", "申");
-            put("申", "寅");
-            put("卯", "酉");
-            put("酉", "卯");
-            put("辰", "戌");
-            put("戌", "辰");
-            put("巳", "亥");
-            put("亥", "巳");
-        }
-    };
-
-    public static List<Set<String>> wuHe = new ArrayList<Set<String>>() {{
-        add(Sets.newHashSet("甲", "己"));
-        add(Sets.newHashSet("乙", "庚"));
-        add(Sets.newHashSet("丙", "辛"));
-        add(Sets.newHashSet("丁", "壬"));
-        add(Sets.newHashSet("戌", "癸"));
-    }};
-
     /**
      * 流派，2晚子时日柱按当天，1晚子时日柱按明天
      */
@@ -240,19 +215,25 @@ public class EightChar {
         if (sanQiGuiRen.getKey()) {
             shenShas.add(sanQiGuiRen.getValue());
         }
+        //天煞
         Pair<Boolean, String> tianShe = isTianShe(monthZhi);
         if (tianShe.getKey()) {
             shenShas.add(tianShe.getValue());
         }
+        //元辰
         Pair<Boolean, String> yuanChen = isYuanChen(monthZhi);
         if (yuanChen.getKey()) {
             shenShas.add(yuanChen.getValue());
         }
+        //四废
         Pair<Boolean, String> siFei = isSiFei();
         if (siFei.getKey()) {
             shenShas.add(siFei.getValue());
         }
-        //TODO 勾绞煞
+        //勾绞煞
+        if (isGou(monthZhi) || isJiao(monthZhi)) {
+            shenShas.add("勾绞煞");
+        }
 
         return shenShas;
     }
@@ -280,12 +261,31 @@ public class EightChar {
         List<String> yearZhiShenSha = LunarUtil.yearZhiShenShaTable.getOrDefault(getYearZhi() + dayZhi, Lists.newArrayList());
         shenShas.addAll(yearZhiShenSha);
 
+        //其他神煞
+        //三奇贵人
+        Pair<Boolean, String> sanQiGuiRen = isSanQiGuiRen();
+        if (sanQiGuiRen.getKey()) {
+            shenShas.add(sanQiGuiRen.getValue());
+        }
+        //天煞
+        Pair<Boolean, String> tianShe = isTianShe(dayZhi);
+        if (tianShe.getKey()) {
+            shenShas.add(tianShe.getValue());
+        }
+        //元辰
         Pair<Boolean, String> yuanChen = isYuanChen(dayZhi);
         if (yuanChen.getKey()) {
             shenShas.add(yuanChen.getValue());
         }
-
-        //TODO 勾绞煞
+        //四废
+        Pair<Boolean, String> siFei = isSiFei();
+        if (siFei.getKey()) {
+            shenShas.add(siFei.getValue());
+        }
+        //勾绞煞
+        if (isGou(dayZhi) || isJiao(dayZhi)) {
+            shenShas.add("勾绞煞");
+        }
         return shenShas;
     }
 
@@ -312,15 +312,29 @@ public class EightChar {
         shenShas.addAll(yearZhiShenSha);
 
         //其他神煞
+        Pair<Boolean, String> sanQiGuiRen = isSanQiGuiRen();
+        if (sanQiGuiRen.getKey()) {
+            shenShas.add(sanQiGuiRen.getValue());
+        }
+        //天煞
+        Pair<Boolean, String> tianShe = isTianShe(timeZhi);
+        if (tianShe.getKey()) {
+            shenShas.add(tianShe.getValue());
+        }
+        //元辰
         Pair<Boolean, String> yuanChen = isYuanChen(timeZhi);
         if (yuanChen.getKey()) {
             shenShas.add(yuanChen.getValue());
         }
-        Pair<Boolean, String> jinShen = isJinShen();
-        if (yuanChen.getKey()) {
-            shenShas.add(jinShen.getValue());
+        //四废
+        Pair<Boolean, String> siFei = isSiFei();
+        if (siFei.getKey()) {
+            shenShas.add(siFei.getValue());
         }
-        //TODO 勾绞煞
+        //勾绞煞
+        if (isGou(timeZhi) || isJiao(timeZhi)) {
+            shenShas.add("勾绞煞");
+        }
         return shenShas;
     }
 
@@ -763,6 +777,12 @@ public class EightChar {
         return false;
     }
 
+    /**
+     * 是否为绞
+     *
+     * @param zhi
+     * @return
+     */
     public Boolean isJiao(String zhi) {
         if (isYinNanYangNv()) {
             String jiao = LunarUtil.getPreGanByOffset(3, getYearZhi());
@@ -984,12 +1004,24 @@ public class EightChar {
         return null;
     }
 
-    public String yearWuHe() {
-        Yun yun = getYun("男".equals(sex) ? 1 : 0);
-        DaYun[] daYun = yun.getDaYun();
-        List<String> ganZhi = Lists.newArrayList(getMonthGan(), getDayGan(), getTimeGan());
-        for (Set<String> he : wuHe) {
+    public String dayKongWang() {
+        String dayZhi = getDayZhi();
+        String yearXunKong = getYearXunKong();
+        if (yearXunKong.contains(dayZhi)) {
+            return "年柱空亡";
+        }
+        return null;
+    }
 
+    public String timeKongWang() {
+        String dayXunKong = getDayXunKong();
+        String timeZhi = getTimeZhi();
+        if (dayXunKong.contains(timeZhi)) {
+            return "日柱空亡";
+        }
+        String yearXunKong = getYearXunKong();
+        if (yearXunKong.contains(timeZhi)) {
+            return "年柱空亡";
         }
         return null;
     }

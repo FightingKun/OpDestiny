@@ -3,22 +3,24 @@ package com.op.des.web;
 import com.op.des.web.lunar.EightChar;
 import com.op.des.web.lunar.JieQi;
 import com.op.des.web.lunar.Lunar;
-import com.op.des.web.lunar.Solar;
 import com.op.des.web.lunar.eightchar.DaYun;
 import com.op.des.web.lunar.eightchar.LiuNian;
 import com.op.des.web.lunar.eightchar.LiuYue;
-import com.op.des.web.lunar.eightchar.Yun;
-import com.op.des.web.lunar.util.LunarUtil;
 import com.op.des.web.param.BaZiPaiPanReq;
 import com.op.des.web.utils.ChineseCalendarUtils;
-import com.op.des.web.vo.*;
+import com.op.des.web.vo.BaZiPaiPanPageVO;
+import com.op.des.web.vo.PaiPanInfoVO;
+import com.op.des.web.vo.PaiPanZhuInfo;
+import com.op.des.web.vo.PersonDetailVO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.print.DocFlavor;
 import java.time.Year;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 八字论命
@@ -28,7 +30,7 @@ public class BaZiLunMingController {
 
     @RequestMapping("/paipan")
     @ResponseBody
-    public BaZiPaiPanPageVO PaiPan(BaZiPaiPanReq req) {
+    public BaZiPaiPanPageVO paiPan(BaZiPaiPanReq req) {
 
         BaZiPaiPanPageVO baZiPaiPanPageVO = new BaZiPaiPanPageVO();
 
@@ -48,9 +50,14 @@ public class BaZiLunMingController {
         paiPanInfoVO.setYearZhu(yearZhu(eightChar));
         //月柱
         paiPanInfoVO.setMonthZhu(monthZhu(eightChar));
+        //日柱
+        paiPanInfoVO.setDayZhu(dayZhu(eightChar));
+        //时柱
+        paiPanInfoVO.setDayZhu(timeZhu(eightChar));
 
         //获取大运
         DaYun curDaYun = eightChar.getCurDaYun(req.getSex(), age);
+        paiPanInfoVO.setDaYun();
         //流年
         LiuNian curLiuNian = curDaYun.getCurLiuNian(curYear);
         paiPanInfoVO.setYearLiu(getLiuYearZhu(req, age, curYear, eightChar));
@@ -59,16 +66,21 @@ public class BaZiLunMingController {
         paiPanInfoVO.setMonthLiu(getLiuMonthZhu(currentLiuYue));
         //流日
         paiPanInfoVO.setDayLiu(getDayLiuZhu());
+
         //处理五合
         paiPanInfoVO.handleWuHe();
         //处理六合
         paiPanInfoVO.handleLiuHe();
+        //处理六冲
+        paiPanInfoVO.handleLiuChong();
         //处理六害
         paiPanInfoVO.handleLiuHai();
         //处理三会
         paiPanInfoVO.handleSanHui();
-        //处理三会
+        //处理三合
         paiPanInfoVO.handleSanHe();
+        //处理双合
+        paiPanInfoVO.handleShuangHe();
         return baZiPaiPanPageVO;
     }
 
@@ -121,9 +133,63 @@ public class BaZiLunMingController {
         monthZhu.setNaYin(eightChar.getMonthNaYin());
         //月柱-神煞
         monthZhu.setShenSha(eightChar.getMonthShenSha());
-        //月柱-日柱空亡
-        monthZhu.setKongWang(eightChar.monthKongWang());
+        //月柱-日/年柱空亡
+        if (eightChar.monthKongWang() != null) {
+            monthZhu.setKongWang(eightChar.monthKongWang());
+        }
         return monthZhu;
+    }
+
+    private static PaiPanZhuInfo dayZhu(EightChar eightChar) {
+        PaiPanZhuInfo dayZhu = new PaiPanZhuInfo();
+        dayZhu.setName("日柱");
+        //日柱-十神
+        dayZhu.setShiShen(eightChar.getDayShiShenGan());
+        //日柱-干
+        dayZhu.setGan(eightChar.getDayGan());
+        //日柱-支
+        dayZhu.setZhi(eightChar.getDayZhi());
+        //日柱-藏干
+        dayZhu.setCangGan(eightChar.getDayHideGan());
+        //日柱-藏干-十神
+        dayZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), eightChar.getDayHideGan()));
+        //日柱-十二宫为
+        dayZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), eightChar.getDayZhi()));
+        //日柱-纳因
+        dayZhu.setNaYin(eightChar.getDayNaYin());
+        //日柱-神煞
+        dayZhu.setShenSha(eightChar.getDayShenSha());
+        //日柱-年柱空亡
+        if (eightChar.dayKongWang() != null) {
+            dayZhu.setKongWang(eightChar.dayKongWang());
+        }
+        return dayZhu;
+    }
+
+    private static PaiPanZhuInfo timeZhu(EightChar eightChar) {
+        PaiPanZhuInfo timeZhu = new PaiPanZhuInfo();
+        timeZhu.setName("时柱");
+        //时柱-十神
+        timeZhu.setShiShen(eightChar.getTimeShiShenGan());
+        //时柱-干
+        timeZhu.setGan(eightChar.getTimeGan());
+        //时柱-支
+        timeZhu.setZhi(eightChar.getTimeZhi());
+        //时柱-藏干
+        timeZhu.setCangGan(eightChar.getTimeHideGan());
+        //时柱-藏干-十神
+        timeZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), eightChar.getTimeHideGan()));
+        //时柱-十二宫为
+        timeZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), eightChar.getTimeZhi()));
+        //时柱-纳因
+        timeZhu.setNaYin(eightChar.getTimeNaYin());
+        //时柱-神煞
+        timeZhu.setShenSha(eightChar.getTimeShenSha());
+        //时柱-日/年柱空亡
+        if (eightChar.timeKongWang() != null) {
+            timeZhu.setKongWang(eightChar.timeKongWang());
+        }
+        return timeZhu;
     }
 
     private static PaiPanZhuInfo yearZhu(EightChar eightChar) {
@@ -147,8 +213,9 @@ public class BaZiLunMingController {
         //年柱-神煞
         yearZhu.setShenSha(eightChar.getYearShenSha());
         //年柱-日柱空亡
-        yearZhu.setKongWang(eightChar.yearKongWang());
-        //五合
+        if (eightChar.yearKongWang() != null) {
+            yearZhu.setKongWang(eightChar.yearKongWang());
+        }
         return yearZhu;
     }
 
@@ -199,71 +266,4 @@ public class BaZiLunMingController {
         calendar.set(Calendar.DATE, req.getDay());
         return Lunar.fromDate(calendar.getTime());
     }
-
-    public static void main(String[] args) {
-
-        BaZiPaiPanReq req = new BaZiPaiPanReq();
-        req.setYear(1993);
-        req.setMonth(9);
-        req.setDay(24);
-        req.setHour(10);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, req.getYear());
-        calendar.set(Calendar.MONTH, req.getMonth());
-        calendar.set(Calendar.DATE, req.getDay());
-
-        int age = Calendar.get
-
-
-        Lunar lunar = Lunar.fromDate(calendar.getTime());
-
-        String yearGan = lunar.getYearGan();
-        System.out.println("日干:" + yearGan);
-        String yearZhi = lunar.getYearZhi();
-        System.out.println("地支:" + yearZhi);
-        String monthGan = lunar.getMonthZhi();
-        System.out.println("月干:" + monthGan);
-        String lunarYearGanByLiChun = lunar.getYearGanByLiChun();
-        System.out.println("流运年干:" + lunarYearGanByLiChun);
-        String lunarYearZhiByLiChun = lunar.getYearZhiByLiChun();
-        System.out.println("流运地支:" + lunarYearZhiByLiChun);
-        String monthXun = lunar.getMonthXun();
-        System.out.println("月运：" + monthXun);
-
-        //年柱
-        EightChar eightChar = lunar.getEightChar();
-        PaiPanZhuInfo yearZhu = new PaiPanZhuInfo();
-        yearZhu.setName("年柱");
-        yearZhu.setShiShen(eightChar.getYearShiShenGan());
-        yearZhu.setGan(eightChar.getYearGan());
-        yearZhu.setZhi(eightChar.getYearZhi());
-        yearZhu.setCangGan(eightChar.getYearHideGan());
-        yearZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), eightChar.getYearHideGan()));
-        yearZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), eightChar.getYearZhi()));
-        yearZhu.setNaYin(eightChar.getYearNaYin());
-        System.out.println(yearZhu);
-
-        String yearXunKong = eightChar.getYearXunKong();
-        System.out.println(eightChar.getMonthXunKong());
-        System.out.println(yearXunKong);
-        String preGanByOffset = LunarUtil.getPreGanByOffset(-3, "午");
-        System.out.println(preGanByOffset);
-
-        Yun yun = eightChar.getCurDaYun(1, );
-
-        DaYun[] daYun = yun.getDaYun();
-        System.out.println(daYun[0].getEndAge());
-        System.out.println(daYun[0].getEndYear());
-        System.out.println(daYun[1].getStartYear());
-        System.out.println(daYun[1].getEndYear());
-        System.out.println(daYun[2].getStartYear());
-        System.out.println(daYun[2].getEndYear());
-        System.out.println(daYun[10].getStartYear());
-        System.out.println(daYun[10].getEndYear());
-        //
-
-
-    }
-
-
 }

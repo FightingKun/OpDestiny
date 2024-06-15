@@ -1,12 +1,14 @@
 package com.op.des.web.vo;
 
-import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Year;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -22,6 +24,24 @@ public class PaiPanInfoVO {
     PaiPanZhuInfo yearLiu;
     PaiPanZhuInfo monthLiu;
     PaiPanZhuInfo dayLiu;
+
+
+    public static final Map<String, String> CHONG = new HashMap<String, String>() {
+        {
+            put("子", "午");
+            put("午", "子");
+            put("丑", "未");
+            put("未", "丑");
+            put("寅", "申");
+            put("申", "寅");
+            put("卯", "酉");
+            put("酉", "卯");
+            put("辰", "戌");
+            put("戌", "辰");
+            put("巳", "亥");
+            put("亥", "巳");
+        }
+    };
 
     public void handleWuHe() {
         if (isWuhe(yearZhu.getGan())) {
@@ -106,56 +126,101 @@ public class PaiPanInfoVO {
 
 
     public void handleSanHui() {
-        if (isSanHui(yearZhu.getZhi()) == 1) {
-            yearZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(yearZhu.getZhi()) == 2) {
-            yearZhu.getGanZhiRelations().add("半三会");
+        String sanHui = isSanHui(yearZhu.getZhi());
+        if (sanHui != null) {
+            yearZhu.getGanZhiRelations().add(sanHui);
+        }
+        sanHui = isSanHui(monthZhu.getZhi());
+        if (sanHui != null) {
+            monthZhu.getGanZhiRelations().add(sanHui);
         }
 
-        if (isSanHui(monthZhu.getZhi()) == 1) {
-            monthZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(monthZhu.getZhi()) == 2) {
-            monthZhu.getGanZhiRelations().add("半三会");
+        sanHui = isSanHui(dayZhu.getZhi());
+        if (sanHui != null) {
+            dayZhu.getGanZhiRelations().add(sanHui);
         }
 
-        if (isSanHui(dayZhu.getZhi()) == 1) {
-            dayZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(dayZhu.getZhi()) == 2) {
-            dayZhu.getGanZhiRelations().add("半三会");
+        sanHui = isSanHui(timeZhu.getZhi());
+        if (sanHui != null) {
+            timeZhu.getGanZhiRelations().add(sanHui);
         }
 
-        if (isSanHui(timeZhu.getZhi()) == 1) {
-            timeZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(timeZhu.getZhi()) == 2) {
-            timeZhu.getGanZhiRelations().add("半三会");
+        sanHui = isSanHui(daYun.getZhi());
+        if (sanHui != null) {
+            daYun.getGanZhiRelations().add(sanHui);
         }
 
-        if (isSanHui(daYun.getZhi()) == 1) {
-            daYun.getGanZhiRelations().add("三会");
-        } else if (isSanHui(daYun.getZhi()) == 2) {
-            daYun.getGanZhiRelations().add("半三会");
+        sanHui = isSanHui(yearLiu.getZhi());
+        if (sanHui != null) {
+            yearLiu.getGanZhiRelations().add(sanHui);
         }
 
-        if (isSanHui(yearLiu.getZhi()) == 1) {
-            yearLiu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(yearLiu.getZhi()) == 2) {
-            yearLiu.getGanZhiRelations().add("半三会");
+        sanHui = isSanHui(monthLiu.getZhi());
+        if (sanHui != null) {
+            monthLiu.getGanZhiRelations().add(sanHui);
         }
 
-        if (isSanHui(monthLiu.getZhi()) == 1) {
-            monthLiu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(monthLiu.getZhi()) == 2) {
-            monthLiu.getGanZhiRelations().add("半三会");
+        sanHui = isSanHui(dayLiu.getZhi());
+        if (sanHui != null) {
+            dayLiu.getGanZhiRelations().add(sanHui);
+        }
+    }
+
+    public void handleLiuChong() {
+        String zhi = yearZhu.getZhi();
+        String chong = isChong(zhi);
+        if (chong != null) {
+            yearZhu.getGanZhiRelations().add(chong);
+        }
+    }
+
+    private String isChong(String zhi) {
+        Set<String> ganSets = getGanZhis();
+        String chong = CHONG.get(zhi);
+        return chong != null && ganSets.contains(chong) ? "六冲" : null;
+    }
+
+    private Set<String> getGanZhis() {
+        Set<String> ganSets = new HashSet<>();
+        ganSets.add(yearLiu.getZhi());
+        ganSets.add(monthLiu.getZhi());
+        ganSets.add(dayLiu.getZhi());
+        ganSets.add(daYun.getZhi());
+        ganSets.add(yearZhu.getZhi());
+        ganSets.add(monthZhu.getZhi());
+        ganSets.add(dayZhu.getZhi());
+        ganSets.add(timeZhu.getZhi());
+        return ganSets;
+    }
+
+    public void handleShuangHe() {
+        if (yearZhu.getGanZhiRelations().contains("五合") && yearZhu.getGanZhiRelations().contains("六合")) {
+            yearZhu.getGanZhiRelations().add("鸳鸯双合");
+        }
+        if (monthZhu.getGanZhiRelations().contains("五合") && monthZhu.getGanZhiRelations().contains("六合")) {
+            monthZhu.getGanZhiRelations().add("鸳鸯双合");
+        }
+        if (dayZhu.getGanZhiRelations().contains("五合") && dayZhu.getGanZhiRelations().contains("六合")) {
+            dayZhu.getGanZhiRelations().add("鸳鸯双合");
+        }
+        if (timeZhu.getGanZhiRelations().contains("五合") && timeZhu.getGanZhiRelations().contains("六合")) {
+            timeZhu.getGanZhiRelations().add("鸳鸯双合");
         }
 
-        if (isSanHui(dayLiu.getZhi()) == 1) {
-            dayLiu.getGanZhiRelations().add("三会");
-        } else if (isSanHui(dayLiu.getZhi()) == 2) {
-            dayLiu.getGanZhiRelations().add("半三会");
+        if (yearLiu.getGanZhiRelations().contains("五合") && yearLiu.getGanZhiRelations().contains("六合")) {
+            yearLiu.getGanZhiRelations().add("鸳鸯双合");
+        }
+        if (monthLiu.getGanZhiRelations().contains("五合") && monthLiu.getGanZhiRelations().contains("六合")) {
+            monthLiu.getGanZhiRelations().add("鸳鸯双合");
+        }
+        if (dayLiu.getGanZhiRelations().contains("五合") && dayLiu.getGanZhiRelations().contains("六合")) {
+            dayLiu.getGanZhiRelations().add("鸳鸯双合");
+        }
+        if (daYun.getGanZhiRelations().contains("五合") && daYun.getGanZhiRelations().contains("六合")) {
+            daYun.getGanZhiRelations().add("鸳鸯双合");
         }
 
     }
-
 
     public void handleSanHe() {
         if (isSanHe(yearZhu.getZhi()) == 1) {
@@ -253,15 +318,7 @@ public class PaiPanInfoVO {
     }
 
     private boolean isLiuhe(String zhi) {
-        Set<String> ganSets = new HashSet<>();
-        ganSets.add(yearLiu.getZhi());
-        ganSets.add(monthLiu.getZhi());
-        ganSets.add(dayLiu.getZhi());
-        ganSets.add(daYun.getZhi());
-        ganSets.add(yearZhu.getZhi());
-        ganSets.add(monthZhu.getZhi());
-        ganSets.add(dayZhu.getZhi());
-        ganSets.add(timeZhu.getZhi());
+        Set<String> ganSets = getGanZhis();
         if ("子".equals(zhi) && ganSets.contains("丑")) {
             return true;
         }
@@ -303,15 +360,7 @@ public class PaiPanInfoVO {
     }
 
     private boolean isLiuHai(String zhi) {
-        Set<String> ganSets = new HashSet<>();
-        ganSets.add(yearLiu.getZhi());
-        ganSets.add(monthLiu.getZhi());
-        ganSets.add(dayLiu.getZhi());
-        ganSets.add(daYun.getZhi());
-        ganSets.add(yearZhu.getZhi());
-        ganSets.add(monthZhu.getZhi());
-        ganSets.add(dayZhu.getZhi());
-        ganSets.add(timeZhu.getZhi());
+        Set<String> ganSets = getGanZhis();
         if ("子".equals(zhi) && ganSets.contains("未")) {
             return true;
         }
@@ -353,55 +402,49 @@ public class PaiPanInfoVO {
 
     }
 
-    private int isSanHui(String zhi) {
-        Set<String> ganSets = new HashSet<>();
-        ganSets.add(yearLiu.getZhi());
-        ganSets.add(monthLiu.getZhi());
-        ganSets.add(dayLiu.getZhi());
-        ganSets.add(daYun.getZhi());
-        ganSets.add(yearZhu.getZhi());
-        ganSets.add(monthZhu.getZhi());
-        ganSets.add(dayZhu.getZhi());
-        ganSets.add(timeZhu.getZhi());
-        if ("卯".equals(zhi)) {
-            if (ganSets.contains("寅") && ganSets.contains("辰")) {
-                return 1;
+    private String isSanHui(String zhi) {
+        Set<String> ganSets = getGanZhis();
+        if ("卯".equals(zhi) || "寅".equals(zhi) || "辰".equals(zhi)) {
+            if (ganSets.contains("寅") && ganSets.contains("辰") && ganSets.contains("卯")) {
+                return "三会木";
             }
-            return 2;
-        }
-        if ("午".equals(zhi)) {
-            if (ganSets.contains("巳") && ganSets.contains("未")) {
-                return 1;
+            if ("卯".equals(zhi)) {
+                return "半三会";
             }
-            return 2;
         }
 
-        if ("酉".equals(zhi)) {
-            if (ganSets.contains("戌") && ganSets.contains("未")) {
-                return 1;
+        if ("午".equals(zhi) || "巳".equals(zhi) || "未".equals(zhi)) {
+            if (ganSets.contains("午") && ganSets.contains("未") && ganSets.contains("巳")) {
+                return "三会火";
             }
-            return 2;
-        }
-        if ("子".equals(zhi)) {
-            if (ganSets.contains("丑") && ganSets.contains("亥")) {
-                return 1;
+            if ("午".equals(zhi)) {
+                return "半三会";
             }
-            return 2;
         }
-        return 0;
+
+        if ("酉".equals(zhi) || "申".equals(zhi) || "戌".equals(zhi)) {
+            if (ganSets.contains("酉") && ganSets.contains("申") && ganSets.contains("戌")) {
+                return "三会金";
+            }
+            if ("酉".equals(zhi)) {
+                return "半三会";
+            }
+        }
+
+        if ("子".equals(zhi) || "亥".equals(zhi) || "丑".equals(zhi)) {
+            if (ganSets.contains("亥") && ganSets.contains("子") && ganSets.contains("丑")) {
+                return "三会水";
+            }
+            if ("子".equals(zhi)) {
+                return "半三会";
+            }
+        }
+        return null;
 
     }
 
     private int isSanHe(String zhi) {
-        Set<String> ganSets = new HashSet<>();
-        ganSets.add(yearLiu.getZhi());
-        ganSets.add(monthLiu.getZhi());
-        ganSets.add(dayLiu.getZhi());
-        ganSets.add(daYun.getZhi());
-        ganSets.add(yearZhu.getZhi());
-        ganSets.add(monthZhu.getZhi());
-        ganSets.add(dayZhu.getZhi());
-        ganSets.add(timeZhu.getZhi());
+        Set<String> ganSets = getGanZhis();
 
         if ("午".equals(zhi)) {
             if (ganSets.contains("寅") && ganSets.contains("戌")) {
