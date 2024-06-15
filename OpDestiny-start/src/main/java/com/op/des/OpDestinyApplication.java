@@ -9,5 +9,4 @@ public class OpDestinyApplication {
     public static void main(String[] args) {
         SpringApplication.run(OpDestinyApplication.class, args);
     }
-
 }

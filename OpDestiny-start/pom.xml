@@ -18,10 +18,6 @@
         </dependency>
         <dependency>
             <groupId>com.op.des</groupId>
-            <artifactId>OpDestiny-service</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.op.des</groupId>
             <artifactId>OpDestiny-web</artifactId>
         </dependency>
 

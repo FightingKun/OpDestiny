@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
-package com.op.des.demos.web;
+package com.op.des.web;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
  */
-public class User {
+@Controller
+public class MainPageController {
 
-    private String name;
-
-    private Integer age;
-
-    public String getName() {
-        return name;
+    // http://127.0.0.1:8080/hello?name=lisi
+    @RequestMapping("op/des/main")
+    @ResponseBody
+    public String mainPage() {
+        return "Hello ";
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
 }
