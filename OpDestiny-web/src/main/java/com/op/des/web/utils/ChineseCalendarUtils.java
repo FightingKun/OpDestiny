@@ -28,8 +28,8 @@ public class ChineseCalendarUtils {
 
     // 计算日干支
     public static String getDayGanZhi(int year, int month, int day) {
-        int julianday = toJulianDay(year, month, day);
-        int daysSinceBaseDay = -toJulianDay(BASE_YEAR, BASE_MONTH, BASE_DAY);
+        int julianDay = toJulianDay(year, month, day);
+        int daysSinceBaseDay = julianDay - toJulianDay(BASE_YEAR, BASE_MONTH, BASE_DAY);
         int index = (daysSinceBaseDay + BASE_INDEX) % 60;
         if (index < 0) {
             index += 60; // 转换为正数

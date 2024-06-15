@@ -1,78 +1,25 @@
 package com.op.des.web.lunar.eightchar;
 
-
 import com.google.common.collect.Lists;
 import com.op.des.web.lunar.EightChar;
-import com.op.des.web.lunar.Lunar;
 import com.op.des.web.lunar.util.LunarUtil;
+import com.op.des.web.utils.ChineseCalendarUtils;
 import com.op.des.web.utils.PaiPanUtils;
 import javafx.util.Pair;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
-/**
- * 流年
- *
- * @author 6tail
- */
-public class LiuNian {
-    /**
-     * 序数，0-9
-     */
-    private final int index;
+public class LiuDay {
 
-    /**
-     * 大运
-     */
-    private final DaYun daYun;
+    private Integer year;
+    private Integer month;
+    private Integer day;
 
-    /**
-     * 年
-     */
-    private final int year;
-
-    /**
-     * 年龄
-     */
-    private final int age;
-
-    private final Lunar lunar;
-
-    public LiuNian(DaYun daYun, int index) {
-        this.daYun = daYun;
-        this.lunar = daYun.getLunar();
-        this.index = index;
-        this.year = daYun.getStartYear() + index;
-        this.age = daYun.getStartAge() + index;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    /**
-     * 获取干支
-     *
-     * @return 干支
-     */
-    public String getGanZhi() {
-        // 干支与出生日期和起运日期都没关系
-        int offset = LunarUtil.getJiaZiIndex(lunar.getJieQiTable().get("立春").getLunar().getYearInGanZhiExact()) + this.index;
-        if (daYun.getIndex() > 0) {
-            offset += daYun.getStartAge() - 1;
-        }
-        offset %= LunarUtil.JIA_ZI.length;
-        return LunarUtil.JIA_ZI[offset];
+    public LiuDay(Integer year, Integer month, Integer day) {
+        this.day = day;
+        this.month = month;
+        this.year = year;
     }
 
     public String getShiShenGan(EightChar eightChar) {
@@ -89,7 +36,7 @@ public class LiuNian {
 
     public String getKongWang(EightChar eightChar) {
         String dayXunKong = eightChar.getDayXunKong();
-        String zhi = getGanZhi().substring(1,2);
+        String zhi = getGanZhi().substring(1, 2);
         if (dayXunKong.contains(zhi)) {
             return "日柱空亡";
         }
@@ -137,6 +84,24 @@ public class LiuNian {
         return shenShas;
     }
 
+
+    /**
+     * 获取干支
+     * <p>
+     * 《五虎遁》
+     * 甲己之年丙作首，
+     * 乙庚之年戊为头，
+     * 丙辛之年寻庚上，
+     * 丁壬壬寅顺水流，
+     * 若问戊癸何处走，
+     * 甲寅之上好追求。
+     *
+     * @return 干支
+     */
+    public String getGanZhi() {
+        return ChineseCalendarUtils.getDayGanZhi(year, month, day);
+    }
+
     /**
      * 获取所在旬
      *
@@ -153,25 +118,5 @@ public class LiuNian {
      */
     public String getXunKong() {
         return LunarUtil.getXunKong(getGanZhi());
-    }
-
-    /**
-     * 获取流月
-     *
-     * @return 流月
-     */
-    public LiuYue[] getLiuYue() {
-        int n = 12;
-        LiuYue[] l = new LiuYue[n];
-        for (int i = 0; i < n; i++) {
-            l[i] = new LiuYue(this, i);
-        }
-        return l;
-    }
-
-
-    public LiuYue getCurrentLiuYue() {
-        int monthIndex = new Date().getMonth();
-        return getLiuYue()[monthIndex];
     }
 }

@@ -1,7 +1,13 @@
 package com.op.des.web.lunar.eightchar;
 
 
+import com.google.common.collect.Lists;
+import com.op.des.web.lunar.EightChar;
 import com.op.des.web.lunar.util.LunarUtil;
+import com.op.des.web.utils.PaiPanUtils;
+import javafx.util.Pair;
+
+import java.util.List;
 
 /**
  * 流月
@@ -23,6 +29,66 @@ public class LiuYue {
 
   public int getIndex() {
     return index;
+  }
+
+  public String getShiShenGan(EightChar eightChar) {
+    return LunarUtil.SHI_SHEN.get(eightChar.getDayGan() + getGanZhi().substring(0, 1));
+  }
+  public List<String> getHideGan() {
+    return LunarUtil.ZHI_HIDE_GAN.get(getGanZhi().substring(1, 2));
+  }
+
+  public String getNaYin(String zhi) {
+    return LunarUtil.NAYIN.get(zhi);
+  }
+
+  public String getKongWang(EightChar eightChar) {
+    String dayXunKong = eightChar.getDayXunKong();
+    String zhi = getGanZhi().substring(1,2);
+    if (dayXunKong.contains(zhi)) {
+      return "日柱空亡";
+    }
+    String yearXunKong = eightChar.getYearXunKong();
+    if (yearXunKong.contains(zhi)) {
+      return "年柱空亡";
+    }
+    return null;
+  }
+  public List<String> getShenSha(String sex, EightChar eightChar) {
+    String gan = getGanZhi().substring(0, 1), zhi = getGanZhi().substring(1, 2);
+    List<String> shenShas = Lists.newArrayList();
+
+    //干支神煞
+    List<String> dayShenShas = LunarUtil.ganZhiShenShaTable.getOrDefault(eightChar.getDayGan() + zhi, Lists.newArrayList());
+    List<String> yearShenShas = LunarUtil.ganZhiShenShaTable.getOrDefault(eightChar.getYearGan() + zhi, Lists.newArrayList());
+    shenShas.addAll(dayShenShas);
+    shenShas.addAll(yearShenShas);
+
+    //天干神煞
+    List<String> tianGanShenSha = LunarUtil.tianGanShenShaTable.getOrDefault(eightChar.getDayGan() + zhi, Lists.newArrayList());
+    shenShas.addAll(tianGanShenSha);
+    //日支神煞
+    List<String> dayZhiShenSha = LunarUtil.dayZhiShenShaTable.getOrDefault(eightChar.getDayZhi() + zhi, Lists.newArrayList());
+    shenShas.addAll(dayZhiShenSha);
+    //月支神煞
+    List<String> monthZhiShenSha = LunarUtil.monthZhiShenShaTable.getOrDefault(eightChar.getMonthZhi() + zhi, Lists.newArrayList());
+    shenShas.addAll(monthZhiShenSha);
+    //年支神煞表
+    List<String> yearZhiShenSha = LunarUtil.yearZhiShenShaTable.getOrDefault(eightChar.getYearZhi() + zhi, Lists.newArrayList());
+    shenShas.addAll(yearZhiShenSha);
+
+    //其他神煞
+    //元辰
+    Pair<Boolean, String> yuanChen = PaiPanUtils.isYuanChen(sex, zhi, eightChar);
+    if (yuanChen.getKey()) {
+      shenShas.add(yuanChen.getValue());
+    }
+    //勾绞煞
+    if (PaiPanUtils.isGouJiaoSha(zhi, sex, eightChar.getYearGan(), eightChar.getYearZhi())) {
+      shenShas.add("勾绞煞");
+    }
+
+    return shenShas;
   }
 
   /**

@@ -1361,7 +1361,7 @@ public class LunarUtil {
 
             put("丙酉", Lists.newArrayList("天乙贵人", "太极贵人"));
             put("丙亥", Lists.newArrayList("天乙贵人"));
-            put("丙卯", Lists.newArrayList("天乙贵人"));
+            put("丙卯", Lists.newArrayList("太极贵人"));
             put("丙申", Lists.newArrayList("文昌"));
             put("丙未", Lists.newArrayList("金舆"));
             put("丙巳", Lists.newArrayList("禄神"));

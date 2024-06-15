@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaiPanInfoDetailVO {
+public class PaiPanInfoDetailVO implements Serializable {
     private List<daYunItem> daYuns;
     private List<yearLiuItem> yearLius;
     private List<String> monthLius;
@@ -21,7 +22,7 @@ public class PaiPanInfoDetailVO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    static class yearLiuItem{
+    static class yearLiuItem {
         private int order;
         private String ganYear;
         private String time;
@@ -33,7 +34,7 @@ public class PaiPanInfoDetailVO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    static class daYunItem{
+    static class daYunItem {
         private int order;
         private String shen;
         private String ganYear;

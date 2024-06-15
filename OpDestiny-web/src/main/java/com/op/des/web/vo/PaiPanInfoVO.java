@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Year;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaiPanInfoVO {
+public class PaiPanInfoVO implements Serializable {
     PaiPanZhuInfo yearZhu;
     PaiPanZhuInfo monthZhu;
     PaiPanZhuInfo dayZhu;
@@ -172,6 +172,41 @@ public class PaiPanInfoVO {
         if (chong != null) {
             yearZhu.getGanZhiRelations().add(chong);
         }
+        zhi = monthZhu.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            monthZhu.getGanZhiRelations().add(chong);
+        }
+        zhi = dayZhu.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            dayZhu.getGanZhiRelations().add(chong);
+        }
+        zhi = timeZhu.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            timeZhu.getGanZhiRelations().add(chong);
+        }
+        zhi = daYun.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            daYun.getGanZhiRelations().add(chong);
+        }
+        zhi = yearLiu.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            yearLiu.getGanZhiRelations().add(chong);
+        }
+        zhi = monthLiu.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            monthLiu.getGanZhiRelations().add(chong);
+        }
+        zhi = dayLiu.getZhi();
+        chong = isChong(zhi);
+        if (chong != null) {
+            dayLiu.getGanZhiRelations().add(chong);
+        }
     }
 
     private String isChong(String zhi) {
@@ -223,52 +258,35 @@ public class PaiPanInfoVO {
     }
 
     public void handleSanHe() {
-        if (isSanHe(yearZhu.getZhi()) == 1) {
-            yearZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(yearZhu.getZhi()) == 2) {
-            yearZhu.getGanZhiRelations().add("半三会");
+        if (isSanHe(yearZhu.getZhi()) != null) {
+            yearZhu.getGanZhiRelations().add("三合");
         }
 
-        if (isSanHe(monthZhu.getZhi()) == 1) {
-            monthZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(monthZhu.getZhi()) == 2) {
-            monthZhu.getGanZhiRelations().add("半三会");
+        if (isSanHe(monthZhu.getZhi()) != null) {
+            monthZhu.getGanZhiRelations().add("三合");
         }
 
-        if (isSanHe(dayZhu.getZhi()) == 1) {
-            dayZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(dayZhu.getZhi()) == 2) {
-            dayZhu.getGanZhiRelations().add("半三会");
+        if (isSanHe(dayZhu.getZhi()) != null) {
+            dayZhu.getGanZhiRelations().add("三合");
         }
 
-        if (isSanHe(timeZhu.getZhi()) == 1) {
-            timeZhu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(timeZhu.getZhi()) == 2) {
-            timeZhu.getGanZhiRelations().add("半三会");
+        if (isSanHe(timeZhu.getZhi()) != null) {
+            timeZhu.getGanZhiRelations().add("三合");
+        }
+        if (isSanHe(daYun.getZhi()) != null) {
+            daYun.getGanZhiRelations().add("三合");
         }
 
-        if (isSanHe(daYun.getZhi()) == 1) {
-            daYun.getGanZhiRelations().add("三会");
-        } else if (isSanHe(daYun.getZhi()) == 2) {
-            daYun.getGanZhiRelations().add("半三会");
+        if (isSanHe(yearLiu.getZhi()) != null) {
+            yearLiu.getGanZhiRelations().add("三合");
         }
 
-        if (isSanHe(yearLiu.getZhi()) == 1) {
-            yearLiu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(yearLiu.getZhi()) == 2) {
-            yearLiu.getGanZhiRelations().add("半三会");
+        if (isSanHe(monthLiu.getZhi()) != null) {
+            monthLiu.getGanZhiRelations().add("三合");
         }
 
-        if (isSanHe(monthLiu.getZhi()) == 1) {
-            monthLiu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(monthLiu.getZhi()) == 2) {
-            monthLiu.getGanZhiRelations().add("半三会");
-        }
-
-        if (isSanHe(dayLiu.getZhi()) == 1) {
-            dayLiu.getGanZhiRelations().add("三会");
-        } else if (isSanHe(dayLiu.getZhi()) == 2) {
-            dayLiu.getGanZhiRelations().add("半三会");
+        if (isSanHe(dayLiu.getZhi()) != null) {
+            dayLiu.getGanZhiRelations().add("三合");
         }
 
     }
@@ -443,35 +461,42 @@ public class PaiPanInfoVO {
 
     }
 
-    private int isSanHe(String zhi) {
+    private String isSanHe(String zhi) {
         Set<String> ganSets = getGanZhis();
-
-        if ("午".equals(zhi)) {
-            if (ganSets.contains("寅") && ganSets.contains("戌")) {
-                return 1;
+        if ("午".equals(zhi) || "寅".equals(zhi) || "戌".equals(zhi)) {
+            if (ganSets.contains("寅") && ganSets.contains("戌") && ganSets.contains("午")) {
+                return "三合";
             }
-            return 2;
-        }
-        if ("卯".equals(zhi)) {
-            if (ganSets.contains("未") && ganSets.contains("亥")) {
-                return 1;
+            if ("午".equals(zhi)) {
+                return "半三合";
             }
-            return 2;
         }
 
-        if ("酉".equals(zhi)) {
-            if (ganSets.contains("巳") && ganSets.contains("丑")) {
-                return 1;
+        if ("卯".equals(zhi) || "亥".equals(zhi) || "未".equals(zhi)) {
+            if (ganSets.contains("卯") && ganSets.contains("亥") && ganSets.contains("未")) {
+                return "三合";
             }
-            return 2;
-        }
-        if ("子".equals(zhi)) {
-            if (ganSets.contains("申") && ganSets.contains("辰")) {
-                return 1;
+            if ("卯".equals(zhi)) {
+                return "半三合";
             }
-            return 2;
         }
-        return 0;
 
+        if ("酉".equals(zhi) || "巳".equals(zhi) || "丑".equals(zhi)) {
+            if (ganSets.contains("酉") && ganSets.contains("巳") && ganSets.contains("丑")) {
+                return "三合";
+            }
+            if ("酉".equals(zhi)) {
+                return "半三合";
+            }
+        }
+        if ("申".equals(zhi) || "子".equals(zhi) || "辰".equals(zhi)) {
+            if (ganSets.contains("申") && ganSets.contains("子") && ganSets.contains("辰")) {
+                return "三合";
+            }
+            if ("申".equals(zhi)) {
+                return "半三合";
+            }
+        }
+        return null;
     }
 }

@@ -152,6 +152,7 @@ public class EightChar {
         return LunarUtil.SHI_SHEN.get(getDayGan() + getYearGan());
     }
 
+
     /**
      * 获取十神
      *
@@ -336,16 +337,6 @@ public class EightChar {
             shenShas.add("勾绞煞");
         }
         return shenShas;
-    }
-
-    /**
-     * 获取冲
-     *
-     * @param zhi
-     * @return
-     */
-    public String getChongByZhi(String zhi) {
-        return CHONG.get(zhi);
     }
 
     /**
