@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 今日状况
  */
@@ -12,11 +14,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TodaySituationVO {
-    private Item cai;
-    private Item xi;
-    private Item fu;
-    private Item chongXiao;
+public class TodaySituationVO implements Serializable {
+    private Item caiShen;
+    private Item xiShen;
+    private Item fuShen;
+    private Item shengXiao;
     private Item naYin;
     private Item xingZuo;
     private Item shaFang;
@@ -25,7 +27,7 @@ public class TodaySituationVO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    static class Item{
+    public static class Item {
         private String titleName;
         private String content;
     }

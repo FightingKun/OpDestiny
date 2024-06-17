@@ -16,7 +16,7 @@ public class BaZiPaiPanReq {
      */
     private int sex;
     /**
-     * 是否使用太阳时
+     * 是否使用太阳时,1:使用，0：不使用
      */
     private int useSunTime;
 

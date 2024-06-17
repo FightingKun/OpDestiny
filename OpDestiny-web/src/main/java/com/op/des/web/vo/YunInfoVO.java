@@ -12,9 +12,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaiPanInfoDetailVO implements Serializable {
-    private List<daYunItem> daYuns;
-    private List<yearLiuItem> yearLius;
+public class YunInfoVO implements Serializable {
+    private List<DaYunItem> daYuns;
+    private List<YearLiuItem> yearLius;
     private List<String> monthLius;
     private List<String> dayLius;
 
@@ -22,11 +22,11 @@ public class PaiPanInfoDetailVO implements Serializable {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    static class yearLiuItem {
-        private int order;
-        private String ganYear;
-        private String time;
-        private int age;
+    public static class YearLiuItem {
+        private String shiShen;
+        private String ganZhi;
+        private Integer year;
+        private Integer age;
     }
 
 
@@ -34,13 +34,12 @@ public class PaiPanInfoDetailVO implements Serializable {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    static class daYunItem {
-        private int order;
-        private String shen;
-        private String ganYear;
-        private String yun;
-
-        private String time;
+    public static class DaYunItem {
+        private String name;
+        private String shiShen;
+        private String ganZhi;
+        private String shiErGongWei;
+        private int yunEndTime;
         private int age;
     }
 }

@@ -5,20 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * 日历
+ * 凶煞
  */
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CalendarVO {
-    private String  titleDate;
-
-    private String day;
-
-    private String weekDay;
-
-    private String ganzhiDay;
-
+public class XiongShaVO implements Serializable {
+    private String titleName;
+    private List<String> contents;
 }

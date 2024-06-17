@@ -5,19 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
- * 事宜
+ * 日历
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SuitableVO {
-    private String  titleName;
-    private String subTitle;
-    private List<String> contents;
-    private String questionName;
-    private String questionUrl;
+public class HuangLiVO implements Serializable {
+    private String  titleDate;
+
+    private int day;
+
+    private String weekDay;
+
+    private List<String> ganzhi;
+
 }

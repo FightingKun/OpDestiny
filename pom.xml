@@ -19,8 +19,6 @@
         <module>OpDestiny-start</module>
         <module>OpDestiny-web</module>
         <module>OpDestiny-service</module>
-        <module>OpDestiny-service</module>
-        <module>OpDestiny-service</module>
     </modules>
 
     <dependencies>

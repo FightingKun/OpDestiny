@@ -12,7 +12,17 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BaZiPaiPanPageVO implements Serializable {
+    /**
+     * 命主基础信息
+     */
     PersonDetailVO personDetailVO;
+    /**
+     * 排盘信息
+     */
     PaiPanInfoVO paiPanInfoVO;
-    PaiPanInfoDetailVO paiPanInfoDetailVO;
+
+    /**
+     * 运详细信息
+     */
+    YunInfoVO yunInfoVO;
 }

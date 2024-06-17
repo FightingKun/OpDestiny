@@ -161,9 +161,9 @@ public class DaYun {
      * @return 干支
      */
     public String getGanZhi() {
-        if (index < 1) {
-            return "";
-        }
+//        if (index < 1) {
+//            return "";
+//        }
         int offset = LunarUtil.getJiaZiIndex(lunar.getMonthInGanZhiExact());
         offset += yun.isForward() ? index : -index;
         int size = LunarUtil.JIA_ZI.length;

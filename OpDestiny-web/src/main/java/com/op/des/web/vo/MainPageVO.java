@@ -5,15 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MainPageVO {
-    private String pageTitle;
-    private String fourPillarsDestiny;
-    private String lunar;
-    private String annualMoveChanges;
-    private String studyNumerology;
-
+public class MainPageVO implements Serializable {
+    private JiShenVO jiShen;
+    private YiVO yi;
+    private HuangLiVO huangLiVO;
+    private JiVO jiVO;
+    private XiongShaVO xiongShaVO;
+    private BaiJiVO baiJiVO;
+    private TodaySituationVO todaySituationVO;
+    private JieQIVO jieQIVO;
 }
