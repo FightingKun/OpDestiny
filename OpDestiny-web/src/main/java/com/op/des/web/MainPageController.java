@@ -16,8 +16,6 @@
 
 package com.op.des.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.op.des.web.lunar.Lunar;
 import com.op.des.web.lunar.Solar;
@@ -34,16 +32,6 @@ import java.util.List;
  */
 @Controller
 public class MainPageController {
-
-    public static void main(String[] args) throws JsonProcessingException {
-        MainPageVO mainPageVO = new MainPageController().mainPage();
-        ObjectMapper mapper = new ObjectMapper();
-        String s = mapper.writeValueAsString(mainPageVO);
-        System.out.println(s);
-
-
-    }
-
     @RequestMapping("op/des/main")
     @ResponseBody
     public MainPageVO mainPage() {
