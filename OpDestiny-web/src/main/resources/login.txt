@@ -1,0 +1,4 @@
+默认用户名：root
+登录密码：mNn!#Yy4C6|jJDRA
+host:152.136.43.219
+port:22
