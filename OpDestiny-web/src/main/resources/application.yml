@@ -11,3 +11,6 @@ spring:
 mybatis:
   type-aliases-package: com.op.des.web.dao.po # 给pojo实体类起别名
   mapper-locations: classpath:mapper/*.xml # 接口的配置文件的位置 我这里接口配置文件是UserMapper.xml
+
+private:
+  key: @bazilunming

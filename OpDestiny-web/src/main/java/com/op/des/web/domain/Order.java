@@ -9,7 +9,7 @@ public class Order {
     private Long userId;
     private String phone;
     private String userName;
-    private Integer shouldAmount;
+    private Long shouldAmount;
     private String content;
     private Long createTime;
     private Long updateTime;
