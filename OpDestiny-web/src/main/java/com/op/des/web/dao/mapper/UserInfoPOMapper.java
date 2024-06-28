@@ -3,6 +3,8 @@ package com.op.des.web.dao.mapper;
 import com.op.des.web.dao.po.UserInfoPO;
 import com.op.des.web.dao.po.UserInfoPOCriteria;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserInfoPOMapper {
