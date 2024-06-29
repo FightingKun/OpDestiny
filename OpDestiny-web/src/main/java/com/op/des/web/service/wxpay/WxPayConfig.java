@@ -4,7 +4,6 @@ import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Data
@@ -39,7 +38,6 @@ public class WxPayConfig {
 
 
     //SDK 提供的定时更新平台证书
-    @Bean
     public Config getConfig() {
         if (config == null) {
             config = new RSAAutoCertificateConfig.Builder()

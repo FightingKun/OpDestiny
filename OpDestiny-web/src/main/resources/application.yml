@@ -13,4 +13,12 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml # 接口的配置文件的位置 我这里接口配置文件是UserMapper.xml
 
 private:
-  key: @bazilunming
+  key: bazilunming
+
+
+wechat:
+  pay:
+    mchId: 123456
+    privateKeyPath: /Users/kun/work/ops
+    merchantSerialNumber: 1234566
+    apiV3key: 1234143
