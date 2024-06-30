@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Slf4j
-//@Service
+@Service
 public class WxPayService {
     /**
      * AppId
@@ -69,7 +70,7 @@ public class WxPayService {
         order.setUpdateTime(System.currentTimeMillis());
         order.setPhone(phone);
         order.setAmount(req.getAmount());
-        order.setContent("");
+        order.setContent("{}");
         order.setStatus((byte) 0);//状态：0:初始态、1：支付中，2：支付成功，3：支付失败
         orderInfoPOMapper.insertSelective(order);
 
@@ -87,7 +88,7 @@ public class WxPayService {
         request.setMchid(mchId);
         request.setDescription("咨询费");
         request.setNotifyUrl(notifyUrl);
-        request.setOutTradeNo(String.valueOf(order.getId()));
+        request.setOutTradeNo(String.valueOf(order.getId() + 100001));
         // 微信二维码失效时间 4 分钟
         Date date = new Date(new Date().getTime() + 10 * 60 * 1000);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
@@ -101,7 +102,10 @@ public class WxPayService {
             System.out.println(response.getCodeUrl());
             log.info("CreateOrder-PrePay code_url:{}", response.getCodeUrl());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("CreateOrder-PrePay err:", e);
+        }
+        if (response == null) {
+            return new OrderInfoVO();
         }
         // 设置返回订单信息
         OrderInfoVO orderCreateVo = new OrderInfoVO();

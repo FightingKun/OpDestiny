@@ -6,19 +6,23 @@ spring:
     username: root
     password: kun123
     #?serverTimezone=UTC解决时区的报错
-    url: jdbc:mysql://127.0.0.1:3306/pos?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:3306/ops?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.jdbc.Driver
 mybatis:
   type-aliases-package: com.op.des.web.dao.po # 给pojo实体类起别名
-  mapper-locations: classpath:mapper/*.xml # 接口的配置文件的位置 我这里接口配置文件是UserMapper.xml
+  mapper-locations: classpath:com/op/des/web/dao/mapper/*.xml # 接口的配置文件的位置 我这里接口配置文件是UserMapper.xml
 
 private:
-  key: bazilunming
+  key: djafo&*&(988*T*
 
 
 wechat:
   pay:
-    mchId: 123456
-    privateKeyPath: /Users/kun/work/ops
-    merchantSerialNumber: 1234566
-    apiV3key: 1234143
+    mchId: 1608048750
+    privateKeyPath: /Users/kun/code-dir/OpDestiny/1608048750_20240629_cert/apiclient_key.pem
+    merchantSerialNumber: 35BE58D115677D8ECB47A0801DB459486261B0F6
+    apiV3key: gzzpsxsbrblmdszjwyjkdyqkE1234567
+    appId: wx43e947be8b636331
+
+  callback:
+    notifyUrl: https://pay.weixin.qq.com/wxpay/pay.action

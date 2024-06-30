@@ -18,7 +18,6 @@
     <modules>
         <module>OpDestiny-start</module>
         <module>OpDestiny-web</module>
-        <module>OpDestiny-service</module>
     </modules>
 
     <dependencies>
@@ -78,8 +77,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
+                    <classifier>spring-boot</classifier>
                     <mainClass>com.op.des.OpDestinyApplication</mainClass>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
                 <executions>
                     <execution>

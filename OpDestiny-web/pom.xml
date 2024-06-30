@@ -11,6 +11,7 @@
     <artifactId>OpDestiny-web</artifactId>
     <name>OpDestiny-web</name>
     <description>web 模块，对应 MVC 的 V 概念，存放视图层的逻辑</description>
+    <version>0.0.1-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -105,6 +106,13 @@
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>*.yml</include>
                 </includes>
             </resource>
         </resources>

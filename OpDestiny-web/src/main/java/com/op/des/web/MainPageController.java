@@ -23,6 +23,7 @@ import com.op.des.web.vo.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
@@ -30,9 +31,9 @@ import java.util.List;
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
  */
-@Controller
+@RestController
 public class MainPageController {
-    @RequestMapping("op/des/main")
+    @RequestMapping("/op/des/main")
     @ResponseBody
     public MainPageVO mainPage() {
         MainPageVO mainPageVO = new MainPageVO();

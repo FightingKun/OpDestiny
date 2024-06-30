@@ -25,7 +25,8 @@ import java.util.List;
 /**
  * 八字论命
  */
-@RestController("op/des/bazilunming")
+@RestController()
+@RequestMapping("/op/des/bazilunming")
 public class BaZiLunMingController {
 
     @RequestMapping("/paipan")

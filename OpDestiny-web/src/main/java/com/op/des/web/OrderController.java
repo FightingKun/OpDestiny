@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.Map;
 
-//@RestController("op/des/order")
+@RestController
+@RequestMapping("op/des/order")
 public class OrderController {
 
-    @Value("{private.key}")
+    @Value("${private.key}")
     private String privateKey;
 
     @Autowired
@@ -36,8 +38,9 @@ public class OrderController {
         }
         DecodedJWT decoded;
         try {
-            JWTVerifier require = JWT.require(Algorithm.HMAC256(privateKey)).build();
-            decoded = require.verify(req.getToken());
+            JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(privateKey)).build();
+            //验证Token(验证失败，会引发异常)
+            decoded = jwtVerifier.verify(req.getToken());
         } catch (Exception e) {
             return new OrderInfoVO();
         }
@@ -58,5 +61,4 @@ public class OrderController {
     public String notifyPayRes(JSONObject jsonObject, HttpServletRequest request, HttpServletResponse response) {
         return wxPayService.wxpayNotify(jsonObject, request, response);
     }
-
 }
