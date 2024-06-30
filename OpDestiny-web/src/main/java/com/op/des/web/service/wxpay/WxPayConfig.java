@@ -3,9 +3,16 @@ package com.op.des.web.service.wxpay;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
+import java.io.FileNotFoundException;
+import java.util.Base64;
+import java.util.Scanner;
+
+@Slf4j
 @Data
 @Component
 public class WxPayConfig {
@@ -19,10 +26,10 @@ public class WxPayConfig {
     public String mchId;
 
     /**
-     * 商户API私钥路径
+     * 商户API私钥
      */
-    @Value("${wechat.pay.privateKeyPath}")
-    public String privateKeyPath;
+    @Value("${wechat.pay.privateKey}")
+    public String privateKey;
 
     /**
      * 商户证书序列号
@@ -42,9 +49,9 @@ public class WxPayConfig {
         if (config == null) {
             config = new RSAAutoCertificateConfig.Builder()
                     .merchantId(mchId)
-                    .privateKeyFromPath(privateKeyPath)
+                    .privateKey(new String(Base64.getDecoder().decode(privateKey)))
                     .merchantSerialNumber(merchantSerialNumber)
-                    .apiV3Key(apiV3key)
+                    .apiV3Key(new String(Base64.getDecoder().decode(apiV3key)))
                     .build();
         }
         return config;

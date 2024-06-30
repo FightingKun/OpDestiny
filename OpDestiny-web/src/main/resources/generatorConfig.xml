@@ -49,7 +49,7 @@
         </javaClientGenerator>
 
         <table tableName="orderinfo"
-               domainObjectName="orderInfoPO">
+               domainObjectName="OrderInfoPO">
             <generatedKey column="id" sqlStatement="MySql"
                           identity="true" />
         </table>

@@ -88,6 +88,7 @@ public class WxPayService {
         request.setMchid(mchId);
         request.setDescription("咨询费");
         request.setNotifyUrl(notifyUrl);
+        log.info("通知url:{}", notifyUrl);
         request.setOutTradeNo(String.valueOf(order.getId() + 100001));
         // 微信二维码失效时间 4 分钟
         Date date = new Date(new Date().getTime() + 10 * 60 * 1000);
@@ -99,7 +100,6 @@ public class WxPayService {
             // 调用下单方法，得到应答
             response = service.prepay(request);
             // 使用微信扫描 code_url 对应的二维码，即可体验Native支付
-            System.out.println(response.getCodeUrl());
             log.info("CreateOrder-PrePay code_url:{}", response.getCodeUrl());
         } catch (Exception e) {
             log.error("CreateOrder-PrePay err:", e);
@@ -173,7 +173,7 @@ public class WxPayService {
             // 业务逻辑代码
 
             // 将微信返回的订单号参数信息传到Dao层，进行校验
-            OrderInfoPO order = orderInfoPOMapper.selectByPrimaryKey(Long.parseLong(transaction.getOutTradeNo()));
+            OrderInfoPO order = orderInfoPOMapper.selectByPrimaryKey(Long.parseLong(transaction.getOutTradeNo()) - 100001);
             log.info("微信支付回调-Order：order:{}", order);
             // 订单待支付状态 - 更新订单信息
             if (order.getStatus().equals((byte) 1)) {

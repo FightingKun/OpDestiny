@@ -9,6 +9,7 @@ import com.op.des.web.param.CreateOrderReq;
 import com.op.des.web.param.PayNotifyReq;
 import com.op.des.web.service.wxpay.WxPayService;
 import com.op.des.web.vo.order.OrderInfoVO;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("op/des/order")
 public class OrderController {
