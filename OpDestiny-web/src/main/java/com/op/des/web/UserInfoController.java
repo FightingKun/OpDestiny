@@ -13,9 +13,7 @@ import com.op.des.web.dao.po.UserInfoPOCriteria;
 import com.op.des.web.domain.UserLoginInfo;
 import com.op.des.web.param.UserLoginParam;
 import com.op.des.web.param.UserRegistParam;
-import com.op.des.web.utils.UserLoginInfoCacheUtil;
 import com.op.des.web.vo.userinfo.UserVO;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +78,18 @@ public class UserInfoController {
 
     @RequestMapping("/regist")
     public UserVO regist(UserRegistParam registParam) {
+        UserInfoPOCriteria example = new UserInfoPOCriteria();
+        UserInfoPOCriteria.Criteria criteria = example.createCriteria();
+        if (registParam.getPhone() != null) {
+            criteria.andPhoneEqualTo(registParam.getPhone());
+        }
+        List<UserInfoPO> userInfoPOS = userInfoPOMapper.selectByExample(example);
+        if (!CollectionUtils.isEmpty(userInfoPOS)) {
+            UserVO userVO = new UserVO();
+            userVO.setStatus(100);
+            userVO.setMessage("手机号已经注册，请登录");
+            return userVO;
+        }
 
         UserInfoPO userInfoPO = new UserInfoPO();
         userInfoPO.setPhone(registParam.getPhone());

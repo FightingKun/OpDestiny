@@ -21,10 +21,17 @@ import com.op.des.web.lunar.Lunar;
 import com.op.des.web.lunar.Solar;
 import com.op.des.web.vo.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -35,9 +42,24 @@ import java.util.List;
 public class MainPageController {
     @RequestMapping("/op/des/main")
     @ResponseBody
-    public MainPageVO mainPage() {
+    public MainPageVO mainPage(@RequestParam("date") String dateStr) {
         MainPageVO mainPageVO = new MainPageVO();
-        Solar solar = Solar.fromDate(new Date());
+        Date date;
+        LocalDate localDate;
+        if (StringUtils.isEmpty(dateStr)) {
+            localDate = LocalDate.now();
+        } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            localDate = LocalDate.parse(dateStr, dateTimeFormatter);
+        }
+        // 转换为ZonedDateTime
+        ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
+        // 转换为Instant
+        java.time.Instant instant = zonedDateTime.toInstant();
+        // 转换为Date
+        date = Date.from(instant);
+
+        Solar solar = Solar.fromDate(date);
         Lunar lunar = solar.getLunar();
         //吉神
         List<String> dayJiShen = lunar.getDayJiShen();

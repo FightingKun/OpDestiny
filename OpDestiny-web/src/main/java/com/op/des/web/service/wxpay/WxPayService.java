@@ -172,6 +172,7 @@ public class WxPayService {
         if (tradeState == Transaction.TradeStateEnum.SUCCESS) {
             // 业务逻辑代码
 
+
             // 将微信返回的订单号参数信息传到Dao层，进行校验
             OrderInfoPO order = orderInfoPOMapper.selectByPrimaryKey(Long.parseLong(transaction.getOutTradeNo()) - 100001);
             log.info("微信支付回调-Order：order:{}", order);

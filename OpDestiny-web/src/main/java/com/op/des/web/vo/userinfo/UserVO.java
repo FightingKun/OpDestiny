@@ -1,16 +1,16 @@
 package com.op.des.web.vo.userinfo;
 
-import jdk.nashorn.internal.parser.Token;
+import com.op.des.web.vo.BaseVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserVO implements Serializable {
+public class UserVO extends BaseVO {
     private Long id;
     private String name;
     private String phone;

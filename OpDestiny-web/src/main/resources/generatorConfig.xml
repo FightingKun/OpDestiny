@@ -37,7 +37,7 @@
             <property name="trimStrings" value="true" />
         </javaModelGenerator>
         <sqlMapGenerator
-                targetPackage="mapper"
+                targetPackage="com.op.des.web.dao.mapper"
                 targetProject="src/main/resources">
             <property name="enableSubPackages" value="true" />
         </sqlMapGenerator>
@@ -48,8 +48,8 @@
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
 
-        <table tableName="orderinfo"
-               domainObjectName="OrderInfoPO">
+        <table tableName="bookinfo"
+               domainObjectName="BookInfoPO">
             <generatedKey column="id" sqlStatement="MySql"
                           identity="true" />
         </table>
