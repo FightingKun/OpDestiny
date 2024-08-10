@@ -1,5 +1,8 @@
 package com.op.des.web;
 
+import com.google.common.collect.Lists;
+import com.op.des.web.domain.TiaoHou;
+import com.op.des.web.domain.WuXing;
 import com.op.des.web.lunar.EightChar;
 import com.op.des.web.lunar.JieQi;
 import com.op.des.web.lunar.Lunar;
@@ -9,6 +12,7 @@ import com.op.des.web.lunar.util.SolarUtil;
 import com.op.des.web.param.BaZiPaiPanReq;
 import com.op.des.web.utils.ChineseCalendarUtils;
 import com.op.des.web.vo.*;
+import com.op.des.web.vo.userinfo.OpBaseInfoVO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,9 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 八字论命
@@ -28,10 +30,96 @@ import java.util.List;
 @RestController()
 @RequestMapping("/op/des/bazilunming")
 public class BaZiLunMingController {
+    @RequestMapping("/baseinfo")
+    @ResponseBody
+    public OpBaseInfoVO baseInfo(BaZiPaiPanReq req) {
+        OpBaseInfoVO opBaseInfoVO = new OpBaseInfoVO();
+
+        //计算命主出生时间，真太阳时转换
+        long timeMill = calculateTime(req);
+        Date date = new Date(timeMill);
+        Lunar lunar = getLunar(req, date);
+        //日干
+        String dayGan = lunar.getDayGan();
+        String monthZhi = lunar.getMonthZhi();
+        String dayGanWuXing = WuXing.getWuXingByGanZhi(dayGan);
+        String monthZhiWuXing = WuXing.getWuXingByGanZhi(monthZhi);
+        String wuXingSheng = WuXing.getWuXingSheng(monthZhiWuXing);
+        String wuXingShengSelf = WuXing.getWuXingShengSelf(monthZhiWuXing);
+        String wuXingKe = WuXing.getWuXingKe(monthZhiWuXing);
+        String wuXingKeSelf = WuXing.getWuXingKeSelf(monthZhiWuXing);
+
+        //五行强弱
+        List<String> wuXing = new ArrayList<>();
+        wuXing.add(dayGan + dayGanWuXing + "生于" + monthZhi + "月，" + monthZhiWuXing + "旺" + wuXingSheng + "相" + wuXingShengSelf + "休" + wuXingKeSelf + "囚" + wuXingKe + "死");
+        wuXing.add(statisticsWuXing(lunar));
+        BaZiPaiPanPageVO baZiPaiPanPageVO = paiPan(req);
+        wuXing.add(qiangRuo(lunar, baZiPaiPanPageVO));
+        opBaseInfoVO.setWuXing(wuXing);
+
+        //调侯
+        List<String> tiaoGou = new ArrayList<>();
+        tiaoGou.add(TiaoHou.tiaoGou(lunar) + TiaoHou.yongshen(lunar));
+        opBaseInfoVO.setTiaoHou(tiaoGou);
+
+        return opBaseInfoVO;
+
+    }
+
+    private String qiangRuo(Lunar lunar, BaZiPaiPanPageVO baZiPaiPanPageVO) {
+        boolean isDeLing = WuXing.deLing(lunar);
+        boolean isDeShi = WuXing.deShi(lunar, baZiPaiPanPageVO);
+        boolean isDeDi = WuXing.deDi(baZiPaiPanPageVO);
+        String s = "命主日元";
+        if (isDeLing && isDeShi && isDeDi) {
+            return s + "很强";
+        }
+        if (isDeLing && isDeShi) {
+            return s + "强";
+        }
+        if (!isDeLing && !isDeShi && !isDeDi) {
+            return s + "很弱";
+        }
+        return s + "弱";
+    }
+
+    private String statisticsWuXing(Lunar lunar) {
+        StringBuilder sb = new StringBuilder("四柱五行数量，按本气计：");
+        List<String> ganzhi = Lists.newArrayList(
+                lunar.getYearGan(), lunar.getYearZhi(), lunar.getMonthGan(),
+                lunar.getMonthZhi(), lunar.getDayGan(), lunar.getDayZhi(),
+                lunar.getTimeGan(), lunar.getTimeZhi());
+        Map<String, Integer> statisticsWuXing = new LinkedHashMap<>();
+        statisticsWuXing.put("木", 0);
+        statisticsWuXing.put("火", 0);
+        statisticsWuXing.put("土", 0);
+        statisticsWuXing.put("金", 0);
+        statisticsWuXing.put("水", 0);
+        statisticsWuXing(sb, ganzhi, statisticsWuXing);
+        sb.append("，按余气计：");
+        ganzhi.addAll(lunar.getEightChar().getYearHideGan());
+        ganzhi.addAll(lunar.getEightChar().getMonthHideGan());
+        ganzhi.addAll(lunar.getEightChar().getDayHideGan());
+        ganzhi.addAll(lunar.getEightChar().getTimeHideGan());
+        statisticsWuXing(sb, ganzhi, statisticsWuXing);
+        return sb.toString();
+    }
+
+    private static void statisticsWuXing(StringBuilder sb, List<String> ganzhi, Map<String, Integer> statisticsWuXing) {
+        for (int i = 0; i < ganzhi.size(); i++) {
+            String wuXingByGanZhi = WuXing.getWuXingByGanZhi(ganzhi.get(i) + "");
+            statisticsWuXing.put(wuXingByGanZhi, statisticsWuXing.getOrDefault(wuXingByGanZhi, 0) + 1);
+        }
+        Set<Map.Entry<String, Integer>> entries = statisticsWuXing.entrySet();
+        for (Map.Entry<String, Integer> entry : entries) {
+            sb.append(entry.getKey());
+            sb.append(entry.getValue());
+        }
+    }
 
     @RequestMapping("/paipan")
     @ResponseBody
-    public BaZiPaiPanPageVO paiPan(BaZiPaiPanReq req) throws ParseException {
+    public BaZiPaiPanPageVO paiPan(BaZiPaiPanReq req) {
 
         BaZiPaiPanPageVO baZiPaiPanPageVO = new BaZiPaiPanPageVO();
         int age = getAge(req.getTimeType(), req.getYear());
@@ -445,7 +533,7 @@ public class BaZiLunMingController {
         return Year.now().getValue() - year;
     }
 
-    private Lunar getLunar(BaZiPaiPanReq req, Date date) throws ParseException {
+    private Lunar getLunar(BaZiPaiPanReq req, Date date) {
         if (req.getTimeType() == 1) {
             return Lunar.fromDate(date);
         }

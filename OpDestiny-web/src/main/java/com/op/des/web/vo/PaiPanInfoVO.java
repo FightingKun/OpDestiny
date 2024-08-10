@@ -258,35 +258,43 @@ public class PaiPanInfoVO implements Serializable {
     }
 
     public void handleSanHe() {
-        if (isSanHe(yearZhu.getZhi()) != null) {
-            yearZhu.getGanZhiRelations().add("三合");
+        String sanHe = isSanHe(yearZhu.getZhi());
+        if (sanHe != null) {
+            yearZhu.getGanZhiRelations().add(sanHe);
         }
 
-        if (isSanHe(monthZhu.getZhi()) != null) {
-            monthZhu.getGanZhiRelations().add("三合");
+        sanHe = isSanHe(monthZhu.getZhi());
+        if (sanHe != null) {
+            monthZhu.getGanZhiRelations().add(sanHe);
         }
 
-        if (isSanHe(dayZhu.getZhi()) != null) {
-            dayZhu.getGanZhiRelations().add("三合");
+        sanHe = isSanHe(dayZhu.getZhi());
+        if (sanHe != null) {
+            dayZhu.getGanZhiRelations().add(sanHe);
         }
 
-        if (isSanHe(timeZhu.getZhi()) != null) {
-            timeZhu.getGanZhiRelations().add("三合");
+        sanHe = isSanHe(timeZhu.getZhi());
+        if (sanHe != null) {
+            timeZhu.getGanZhiRelations().add(sanHe);
         }
-        if (isSanHe(daYun.getZhi()) != null) {
-            daYun.getGanZhiRelations().add("三合");
-        }
-
-        if (isSanHe(yearLiu.getZhi()) != null) {
-            yearLiu.getGanZhiRelations().add("三合");
+        sanHe = isSanHe(daYun.getZhi());
+        if (sanHe != null) {
+            daYun.getGanZhiRelations().add(sanHe);
         }
 
-        if (isSanHe(monthLiu.getZhi()) != null) {
-            monthLiu.getGanZhiRelations().add("三合");
+        sanHe = isSanHe(yearLiu.getZhi());
+        if (sanHe != null) {
+            yearLiu.getGanZhiRelations().add(sanHe);
         }
 
-        if (isSanHe(dayLiu.getZhi()) != null) {
-            dayLiu.getGanZhiRelations().add("三合");
+        sanHe = isSanHe(monthLiu.getZhi());
+        if (sanHe != null) {
+            monthLiu.getGanZhiRelations().add(sanHe)    ;
+        }
+
+        sanHe = isSanHe(dayLiu.getZhi());
+        if (sanHe != null) {
+            dayLiu.getGanZhiRelations().add(sanHe);
         }
 
     }
@@ -465,7 +473,7 @@ public class PaiPanInfoVO implements Serializable {
         Set<String> ganSets = getGanZhis();
         if ("午".equals(zhi) || "寅".equals(zhi) || "戌".equals(zhi)) {
             if (ganSets.contains("寅") && ganSets.contains("戌") && ganSets.contains("午")) {
-                return "三合";
+                return "三合火";
             }
             if ("午".equals(zhi)) {
                 return "半三合";
@@ -474,7 +482,7 @@ public class PaiPanInfoVO implements Serializable {
 
         if ("卯".equals(zhi) || "亥".equals(zhi) || "未".equals(zhi)) {
             if (ganSets.contains("卯") && ganSets.contains("亥") && ganSets.contains("未")) {
-                return "三合";
+                return "三合木";
             }
             if ("卯".equals(zhi)) {
                 return "半三合";
@@ -483,7 +491,7 @@ public class PaiPanInfoVO implements Serializable {
 
         if ("酉".equals(zhi) || "巳".equals(zhi) || "丑".equals(zhi)) {
             if (ganSets.contains("酉") && ganSets.contains("巳") && ganSets.contains("丑")) {
-                return "三合";
+                return "三合金";
             }
             if ("酉".equals(zhi)) {
                 return "半三合";
@@ -491,7 +499,7 @@ public class PaiPanInfoVO implements Serializable {
         }
         if ("申".equals(zhi) || "子".equals(zhi) || "辰".equals(zhi)) {
             if (ganSets.contains("申") && ganSets.contains("子") && ganSets.contains("辰")) {
-                return "三合";
+                return "三合水";
             }
             if ("申".equals(zhi)) {
                 return "半三合";

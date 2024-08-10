@@ -1,7 +1,10 @@
 server:
-  port: 8888
+  port: 8080
 
 spring:
+  web:
+    resources:
+      static-locations: "file:/Users/kun/work/static/"
   datasource:
     username: ops
     password: ops2024.
