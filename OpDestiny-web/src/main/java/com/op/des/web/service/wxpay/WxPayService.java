@@ -89,7 +89,7 @@ public class WxPayService {
         request.setDescription("咨询费");
         request.setNotifyUrl(notifyUrl);
         log.info("通知url:{}", notifyUrl);
-        request.setOutTradeNo(String.valueOf(order.getId() + 100001));
+        request.setOutTradeNo(String.valueOf(order.getId() + 1000000000001L));
         // 微信二维码失效时间 4 分钟
         Date date = new Date(new Date().getTime() + 10 * 60 * 1000);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");

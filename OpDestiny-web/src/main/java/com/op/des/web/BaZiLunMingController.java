@@ -1,6 +1,15 @@
 package com.op.des.web;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.op.des.web.dao.mapper.BaZiTiYaoPOMapper;
+import com.op.des.web.dao.mapper.ChengGuSuanMingPOMapper;
+import com.op.des.web.dao.po.BaZiTiYaoPO;
+import com.op.des.web.dao.po.BaZiTiYaoPOCriteria;
+import com.op.des.web.dao.po.ChengGuSuanMingPO;
+import com.op.des.web.dao.po.ChengGuSuanMingPOCriteria;
+import com.op.des.web.domain.ChengGuLunMing;
+import com.op.des.web.domain.ShiShen;
 import com.op.des.web.domain.TiaoHou;
 import com.op.des.web.domain.WuXing;
 import com.op.des.web.lunar.EightChar;
@@ -13,12 +22,13 @@ import com.op.des.web.param.BaZiPaiPanReq;
 import com.op.des.web.utils.ChineseCalendarUtils;
 import com.op.des.web.vo.*;
 import com.op.des.web.vo.userinfo.OpBaseInfoVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Year;
@@ -30,6 +40,11 @@ import java.util.*;
 @RestController()
 @RequestMapping("/op/des/bazilunming")
 public class BaZiLunMingController {
+    @Autowired
+    ChengGuSuanMingPOMapper chengGuSuanMingPOMapper;
+    @Autowired
+    BaZiTiYaoPOMapper baZiTiYaoPOMapper;
+
     @RequestMapping("/baseinfo")
     @ResponseBody
     public OpBaseInfoVO baseInfo(BaZiPaiPanReq req) {
@@ -54,7 +69,8 @@ public class BaZiLunMingController {
         wuXing.add(dayGan + dayGanWuXing + "生于" + monthZhi + "月，" + monthZhiWuXing + "旺" + wuXingSheng + "相" + wuXingShengSelf + "休" + wuXingKeSelf + "囚" + wuXingKe + "死");
         wuXing.add(statisticsWuXing(lunar));
         BaZiPaiPanPageVO baZiPaiPanPageVO = paiPan(req);
-        wuXing.add(qiangRuo(lunar, baZiPaiPanPageVO));
+        String qiangRuo = qiangRuo(lunar, baZiPaiPanPageVO);
+        wuXing.add(qiangRuo);
         opBaseInfoVO.setWuXing(wuXing);
 
         //调侯
@@ -62,8 +78,277 @@ public class BaZiLunMingController {
         tiaoGou.add(TiaoHou.tiaoGou(lunar) + TiaoHou.yongshen(lunar));
         opBaseInfoVO.setTiaoHou(tiaoGou);
 
+        //八字格局
+        List<String> baZiGeJu = new ArrayList<>();
+        //正八格
+        String zhengBaGe = getZhengBaGe(baZiPaiPanPageVO);
+        if (zhengBaGe != null) {
+            baZiGeJu.add("正八格：" + zhengBaGe);
+        }
+        String zhuanWangGe = getZhuanWangGe(baZiPaiPanPageVO);
+        if (zhuanWangGe != null) {
+            baZiGeJu.add("专旺格：" + zhuanWangGe);
+        }
+        List<String> congWangGe = getCongWangGe(baZiPaiPanPageVO);
+        if ((wuXing.contains("命主日元弱") || wuXing.contains("命主日元很弱")) && !CollectionUtils.isEmpty(congWangGe)) {
+            baZiGeJu.add("从旺格：" + congWangGe);
+        }
+        if (getKuiGangGe(baZiPaiPanPageVO) != null) {
+            baZiGeJu.add("魁罡格");
+        }
+        opBaseInfoVO.setGeJu(baZiGeJu);
+        //八字提要
+        EightChar eightChar = lunar.getEightChar();
+        String birthYue = eightChar.getMonthZhi() + "月";
+        String birthDay = eightChar.getDayGan() + "日" + birthYue;
+        String birthTime = eightChar.getTimeGan() + eightChar.getTimeZhi() + "时";
+        BaZiTiYaoPOCriteria example = new BaZiTiYaoPOCriteria();
+        BaZiTiYaoPOCriteria.Criteria criteria = example.createCriteria();
+        criteria.andZhiDayEqualTo(birthDay);
+        criteria.andZhiMonthEqualTo(birthYue);
+        criteria.andZhiTimeEqualTo(birthTime);
+        List<BaZiTiYaoPO> baZiTiYaoPOS = baZiTiYaoPOMapper.selectByExample(example);
+        BaZiTiYaoPO baZiTiYaoPO = baZiTiYaoPOS.get(0);
+        String birth = dayGan + "日" + eightChar.getMonthZhi() + "月" + eightChar.getTime() + "时，";
+        opBaseInfoVO.setTiYao(Lists.newArrayList(birth + baZiTiYaoPO.getContent()));
+        //称骨论命
+        String guWeight = ChengGuLunMing.getGuWeight(lunar);
+        ChengGuSuanMingPOCriteria chengGuSuanMingPOCriteria = new ChengGuSuanMingPOCriteria();
+        ChengGuSuanMingPOCriteria.Criteria chengGuSuanMingPOCriteriaCriteria = chengGuSuanMingPOCriteria.createCriteria();
+        chengGuSuanMingPOCriteriaCriteria.andGuWeightEqualTo(guWeight);
+        chengGuSuanMingPOCriteriaCriteria.andSexEqualTo((byte) req.getSex());
+        List<ChengGuSuanMingPO> chengGuSuanMingPOS = chengGuSuanMingPOMapper.selectByExample(chengGuSuanMingPOCriteria);
+        ChengGuSuanMingPO chengGuSuanMingPO = chengGuSuanMingPOS.get(0);
+        String comment = chengGuSuanMingPO.getComment();
+        String mingDetail = chengGuSuanMingPO.getMingDetail();
+        opBaseInfoVO.setChenGu(Lists.newArrayList(mingDetail, comment));
+        //喜忌建议
+        if (zhengBaGe != null) {
+            String xiJiJianXi = getXiJiJianYi(zhengBaGe, qiangRuo, baZiPaiPanPageVO.getPaiPanInfoVO());
+        }
+        //吉运建议
+
         return opBaseInfoVO;
 
+    }
+
+    private String getXiJiJianYi(String zhengBaGe, String mingJuQiangRuo, PaiPanInfoVO paiPanInfoVO) {
+
+
+        String qiangRuo = mingJuQiangRuo.contains("弱") ? "弱" : "强";
+        String zhengGe = null;
+        if (zhengBaGe.equals("正官格")) {
+            zhengGe = "正官";
+        }
+        if (zhengBaGe.equals("七杀格")) {
+            zhengGe = "七杀";
+        }
+        if (zhengBaGe.equals("正财格") || zhengBaGe.equals("偏财格")) {
+            zhengGe = "财星";
+        }
+        if (zhengBaGe.equals("正印格") || zhengBaGe.equals("偏印格")) {
+            zhengGe = "印星";
+        }
+        if (zhengBaGe.equals("食神格")) {
+            zhengGe = "食神";
+        }
+        if (zhengBaGe.equals("伤官格")) {
+            zhengGe = "伤官";
+        }
+
+        String countMingJu = countMingJu(paiPanInfoVO);
+        return ShiShen.quYongShen(zhengGe + qiangRuo + countMingJu);
+    }
+
+    private String countMingJu(PaiPanInfoVO paiPanInfoVO) {
+        PaiPanZhuInfo dayZhu = paiPanInfoVO.getDayZhu();
+        PaiPanZhuInfo monthZhu = paiPanInfoVO.getMonthZhu();
+        PaiPanZhuInfo yearZhu = paiPanInfoVO.getYearZhu();
+        PaiPanZhuInfo timeZhu = paiPanInfoVO.getTimeZhu();
+        List<String> shiShens = Lists.newArrayList(
+                monthZhu.getShiShen(), yearZhu.getShiShen(), timeZhu.getShiShen());
+        shiShens.addAll(dayZhu.getCangGanShishen());
+        shiShens.addAll(monthZhu.getCangGanShishen());
+        shiShens.addAll(yearZhu.getCangGanShishen());
+        shiShens.addAll(timeZhu.getCangGanShishen());
+
+        Map<String, Integer> countMap = new HashMap<>();
+
+        for (String shiShen : shiShens) {
+            if (shiShen.contains("财")) {
+                Integer count = countMap.getOrDefault("财星", 0);
+                countMap.put("财星", count + 1);
+            }
+            if (shiShen.contains("食") || shiShen.contains("伤")) {
+                Integer count = countMap.getOrDefault("食伤", 0);
+                countMap.put("食伤", count + 1);
+            }
+            if (shiShen.contains("官") || shiShen.contains("杀")) {
+                Integer count = countMap.getOrDefault("官杀", 0);
+                countMap.put("官杀", count + 1);
+            }
+            if (shiShen.contains("禄") || shiShen.contains("劫")) {
+                Integer count = countMap.getOrDefault("比劫", 0);
+                countMap.put("比劫", count + 1);
+            }
+
+            if (shiShen.contains("印")) {
+                Integer count = countMap.getOrDefault("印星", 0);
+                countMap.put("印星", count + 1);
+            }
+        }
+
+        Set<Map.Entry<String, Integer>> entries = countMap.entrySet();
+        int maxNum = 0;
+        int biJieNum = 0;
+        int yinXingNUm = 0;
+        String maxXing = "";
+        for (Map.Entry<String, Integer> entry : entries) {
+            Integer value = entry.getValue();
+            if (value > maxNum) {
+                maxXing = entry.getKey();
+                maxNum = value;
+            }
+            if (entry.getKey().equals("比劫")) {
+                biJieNum = value;
+            }
+            if (entry.getKey().equals("印星")) {
+                yinXingNUm = value;
+            }
+        }
+
+        if (maxNum == biJieNum && maxNum == yinXingNUm) {
+            return "比劫、印星";
+        }
+        return maxXing;
+
+    }
+
+    public String getKuiGangGe(BaZiPaiPanPageVO baZiPaiPanPageVO) {
+        PaiPanZhuInfo dayZhu = baZiPaiPanPageVO.getPaiPanInfoVO().getDayZhu();
+        String dayGanZhi = dayZhu.getGan() + dayZhu.getZhi();
+        Set<String> sets = Sets.newHashSet("庚辰", "庚戌", "壬辰", "戊戌");
+        if (sets.contains(dayGanZhi)) {
+            return "魁罡格";
+        }
+        return null;
+    }
+
+    public List<String> getCongWangGe(BaZiPaiPanPageVO baZiPaiPanPageVO) {
+        PaiPanInfoVO paiPanInfoVO = baZiPaiPanPageVO.getPaiPanInfoVO();
+        PaiPanZhuInfo dayZhu = paiPanInfoVO.getDayZhu();
+        PaiPanZhuInfo monthZhu = paiPanInfoVO.getMonthZhu();
+        List<String> wuXings = Lists.newArrayList(dayZhu.getZhi(), monthZhu.getGan(), monthZhu.getZhi(),
+                paiPanInfoVO.getYearZhu().getGan(), paiPanInfoVO.getYearZhu().getZhi(),
+                paiPanInfoVO.getTimeZhu().getZhi(), paiPanInfoVO.getTimeZhu().getGan());
+
+        int keSelfNum = 0;
+        int needKeNum = 0;
+        int needShengNum = 0;
+        String wuXingByGanZhi = WuXing.getWuXingByGanZhi(dayZhu.getGan());
+        for (String wuXing : wuXings) {
+            if (Objects.equals(wuXing, WuXing.getWuXingKeSelf(wuXingByGanZhi))) {
+                keSelfNum++;
+            }
+            if (Objects.equals(wuXing, WuXing.getWuXingKe(wuXingByGanZhi))) {
+                needKeNum++;
+            }
+            if (Objects.equals(wuXing, WuXing.getWuXingSheng(wuXingByGanZhi))) {
+                needShengNum++;
+            }
+        }
+        List<String> congWangGe = Lists.newArrayList();
+        if (keSelfNum >= 3) {
+            congWangGe.add("从杀格");
+        }
+        if (needKeNum >= 3) {
+            congWangGe.add("从财格");
+        }
+        if (needShengNum >= 3) {
+            congWangGe.add("从儿格");
+        }
+        return congWangGe;
+    }
+
+    public String getZhengBaGe(BaZiPaiPanPageVO baZiPaiPanPageVO) {
+
+        PaiPanInfoVO paiPanInfoVO = baZiPaiPanPageVO.getPaiPanInfoVO();
+        PaiPanZhuInfo monthZhu = paiPanInfoVO.getMonthZhu();
+        PaiPanZhuInfo dayZhu = paiPanInfoVO.getDayZhu();
+        PaiPanZhuInfo timeZhu = paiPanInfoVO.getTimeZhu();
+        PaiPanZhuInfo yearZhu = paiPanInfoVO.getYearZhu();
+        List<String> cangGanShishen = monthZhu.getCangGanShishen();
+        List<String> tianGanShishen = Lists.newArrayList(monthZhu.getShiShen(), yearZhu.getShiShen(), timeZhu.getShiShen());
+        Set<String> sets = Sets.newHashSet("甲", "丙", "庚", "壬");
+        for (String cangen : cangGanShishen) {
+            for (String tianGan : tianGanShishen) {
+                if (Objects.equals(cangen, tianGan)) {
+                    if (cangen.equals("劫财") && sets.contains(dayZhu.getGan())) {
+                        return "劫刃格";
+                    }
+                    if (cangen.equals("比肩")) {
+                        return "建禄格";
+                    }
+                    return cangen + "格";
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getZhuanWangGe(BaZiPaiPanPageVO baZiPaiPanPageVO) {
+        //日干五行
+        PaiPanInfoVO paiPanInfoVO = baZiPaiPanPageVO.getPaiPanInfoVO();
+        PaiPanZhuInfo dayZhu = paiPanInfoVO.getDayZhu();
+        String dayZhuGan = dayZhu.getGan();
+        String wuXingByDayGan = WuXing.getWuXingByGanZhi(dayZhuGan);
+
+        //月支五行
+        PaiPanZhuInfo monthZhu = paiPanInfoVO.getMonthZhu();
+        String monthZhuZhi = monthZhu.getZhi();
+        String wuXingByMonthZhi = WuXing.getWuXingByGanZhi(monthZhuZhi);
+        if (!Objects.equals(wuXingByDayGan, wuXingByMonthZhi)) {
+            return null;
+        }
+
+        Set<String> ganZhiRelations = Sets.newHashSet();
+        ganZhiRelations.addAll(dayZhu.getGanZhiRelations());
+        ganZhiRelations.addAll(monthZhu.getGanZhiRelations());
+        ganZhiRelations.addAll(paiPanInfoVO.getYearZhu().getGanZhiRelations());
+        ganZhiRelations.addAll(paiPanInfoVO.getTimeZhu().getGanZhiRelations());
+
+        if (!ganZhiRelations.contains("三合" + wuXingByDayGan) && !ganZhiRelations.contains("三会" + wuXingByDayGan)) {
+            return null;
+        }
+
+        List<String> wuXings = Lists.newArrayList(dayZhu.getZhi(), monthZhu.getGan(), monthZhu.getZhi(),
+                paiPanInfoVO.getYearZhu().getGan(), paiPanInfoVO.getYearZhu().getZhi(),
+                paiPanInfoVO.getTimeZhu().getZhi(), paiPanInfoVO.getTimeZhu().getGan());
+        for (String ganZhi : wuXings) {
+            String wuXingByGanZhi = WuXing.getWuXingByGanZhi(ganZhi);
+            //日柱克的
+            if (Objects.equals(wuXingByGanZhi, WuXing.getWuXingKe(dayZhuGan))) {
+                return null;
+            }
+            //克日柱的
+            if (Objects.equals(wuXingByGanZhi, WuXing.getWuXingKeSelf(dayZhuGan))) {
+                return null;
+            }
+            //日柱生的
+            if (Objects.equals(wuXingByGanZhi, WuXing.getWuXingSheng(dayZhuGan))) {
+                return null;
+            }
+        }
+        Map<String, String> map = new HashMap() {
+            {
+                put("木", "曲直格(木)");
+                put("火", "炎上格(火)");
+                put("土", "稼穡格(土)");
+                put("金", "从革格(金)");
+                put("水", "润下格(水)");
+            }
+        };
+        return map.get(wuXingByDayGan);
     }
 
     private String qiangRuo(Lunar lunar, BaZiPaiPanPageVO baZiPaiPanPageVO) {
@@ -85,10 +370,7 @@ public class BaZiLunMingController {
 
     private String statisticsWuXing(Lunar lunar) {
         StringBuilder sb = new StringBuilder("四柱五行数量，按本气计：");
-        List<String> ganzhi = Lists.newArrayList(
-                lunar.getYearGan(), lunar.getYearZhi(), lunar.getMonthGan(),
-                lunar.getMonthZhi(), lunar.getDayGan(), lunar.getDayZhi(),
-                lunar.getTimeGan(), lunar.getTimeZhi());
+        List<String> ganzhi = Lists.newArrayList(lunar.getYearGan(), lunar.getYearZhi(), lunar.getMonthGan(), lunar.getMonthZhi(), lunar.getDayGan(), lunar.getDayZhi(), lunar.getTimeGan(), lunar.getTimeZhi());
         Map<String, Integer> statisticsWuXing = new LinkedHashMap<>();
         statisticsWuXing.put("木", 0);
         statisticsWuXing.put("火", 0);

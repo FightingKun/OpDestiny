@@ -19,7 +19,6 @@
         <dependency>
             <groupId>com.op.des</groupId>
             <artifactId>OpDestiny-web</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

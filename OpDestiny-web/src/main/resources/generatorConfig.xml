@@ -44,12 +44,10 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="article"
-               domainObjectName="ArticlePO">
+        <table tableName="chenggusuanming"
+               domainObjectName="ChengGuSuanMingPO">
             <generatedKey column="id" sqlStatement="MySql"
                           identity="true"/>
-            <columnOverride column="introduction" javaType="java.lang.String" jdbcType="VARCHAR" />
-            <columnOverride column="image" javaType="java.lang.byte[]" jdbcType="blob"/>
         </table>
         <!--        <table tableName="article"-->
         <!--               domainObjectName="ArticlePOWithContent">-->

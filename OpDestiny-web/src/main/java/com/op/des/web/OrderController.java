@@ -35,27 +35,26 @@ public class OrderController {
 
     @RequestMapping("/create")
     public OrderInfoVO createOrder(CreateOrderReq req) {
-        if (StringUtils.isEmpty(req.getToken())) {
-            return new OrderInfoVO();
-        }
-        DecodedJWT decoded;
-        try {
-            JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(privateKey)).build();
-            //验证Token(验证失败，会引发异常)
-            decoded = jwtVerifier.verify(req.getToken());
-        } catch (Exception e) {
-            return new OrderInfoVO();
-        }
-        Map<String, Claim> claims = decoded.getClaims();
-        if (claims == null) {
-            return new OrderInfoVO();
-        }
-        //用户id
-        Long userid = claims.get("userid").asLong();
-        //用户名
-        String username = claims.get("username").asString();
+//        if (StringUtils.isEmpty(req.getToken())) {
+//            return new OrderInfoVO();
+//        }
+//        DecodedJWT decoded;
+//        try {
+//            JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(privateKey)).build();
+//            //验证Token(验证失败，会引发异常)
+//            decoded = jwtVerifier.verify(req.getToken());
+//        } catch (Exception e) {
+//            return new OrderInfoVO();
+//        }
+//        Map<String, Claim> claims = decoded.getClaims();
+//        if (claims == null) {
+//            return new OrderInfoVO();
+//        }
         //手机号
-        String phone = claims.get("phone").asString();
+//        String phone = claims.get("phone").asString();
+        Long userid = 999999L;
+        String username = "customer";
+        String phone = "customer";
         return wxPayService.createOrder(req, userid, username, phone);
     }
 
