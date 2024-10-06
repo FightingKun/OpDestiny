@@ -29,3 +29,11 @@ wechat:
 
   callback:
     notifyUrl: https://152.136.43.219/op/des/order/notify
+
+
+file:
+  bucketName: def_bucket
+  local:
+    enable: true
+    base-path: ///opt/op/file/
+    baseUrl: http://152.136.43.219:8080/book

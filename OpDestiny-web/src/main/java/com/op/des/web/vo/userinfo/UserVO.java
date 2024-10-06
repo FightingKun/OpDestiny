@@ -39,6 +39,12 @@ public class UserVO extends BaseVO {
         return userVO;
     }
 
+    public static UserVO registError() {
+        UserVO userVO = new UserVO();
+        userVO.setStatus(100);
+        userVO.setMessage("注册失败，请稍后重试");
+        return userVO;
+    }
     public static UserVO loginError() {
         UserVO userVO = new UserVO();
         userVO.setStatus(100);

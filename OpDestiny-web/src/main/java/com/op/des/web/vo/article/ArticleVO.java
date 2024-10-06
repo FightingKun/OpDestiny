@@ -9,6 +9,8 @@ public class ArticleVO {
     ItemVO hot;
     List<ItemVO> articles;
 
+    boolean isSuccess;
+
     @Data
     public static class ItemVO {
         Long id;

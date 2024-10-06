@@ -22,11 +22,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * 命理典籍
+ */
 @RestController()
 @RequestMapping("/op/des/book")
 public class BookController {
 
     public static final String FILE_DIR_HOME = "/opt/op/file/";
+    public static final String BOOK_BASE_URL = "152.136.43.219:8080/book/";
     @Autowired
     BookInfoPOMapper bookInfoPOMapper;
 
@@ -41,6 +45,7 @@ public class BookController {
             bookInfoVO.setDetail(item.getBookDetail());
             bookInfoVO.setIcon(item.getBookLogo());
             bookInfoVO.setId(item.getId());
+            bookInfoVO.setBookPath(item.getBookPath());
             return bookInfoVO;
         }).collect(Collectors.toList());
     }
@@ -57,52 +62,54 @@ public class BookController {
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
+            //保存文件
             String filePath = FILE_DIR_HOME + file.getOriginalFilename();
             file.transferTo(new File(filePath));
             String imagePath = FILE_DIR_HOME + image.getOriginalFilename();
             file.transferTo(new File(imagePath));
 
+            //文件信息落库
             BookInfoPO bookInfoPO = new BookInfoPO();
             bookInfoPO.setBookDetail(detail);
-            bookInfoPO.setBookLogo(imagePath);
+            bookInfoPO.setBookLogo(BOOK_BASE_URL + image.getOriginalFilename());
             bookInfoPO.setBookName(file.getName());
-            bookInfoPO.setBookPath(filePath);
+            bookInfoPO.setBookPath(BOOK_BASE_URL + file.getOriginalFilename());
             bookInfoPOMapper.insertSelective(bookInfoPO);
             return ResponseEntity.status(HttpStatus.OK).body("文件上传成功");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body("文件上传失败");
         }
     }
-
-    @RequestMapping("/read")
-    public List<BookInfoVO> read(@RequestParam("id") Long id) {
-        if (id == null || id <= 0) {
-            return Lists.newArrayList();
-        }
-        BookInfoPO bookInfoPO = bookInfoPOMapper.selectByPrimaryKey(id);
-        if (bookInfoPO == null) {
-            return Lists.newArrayList();
-        }
-
-        //书的内容
-        try {
-            String bookPathStr = bookInfoPO.getBookPath();
-            Path bookPath = Paths.get(FILE_DIR_HOME + bookPathStr);
-            String content = new String(Files.readAllBytes(bookPath));
-
-            String bookLogoStr = bookInfoPO.getBookLogo();
-            Path bookLogoPath = Paths.get(FILE_DIR_HOME + bookLogoStr);
-            byte[] imageBytes = Files.readAllBytes(bookLogoPath);
-
-
-            BookInfoVO bookInfoVO = new BookInfoVO();
-            bookInfoVO.setContent(content);
-            bookInfoVO.setName(bookInfoPO.getBookName());
-            bookInfoVO.setDetail(bookInfoPO.getBookDetail());
-            bookInfoVO.setImageLogo(imageBytes);
-            return Lists.newArrayList(bookInfoVO);
-        } catch (IOException e) {
-            return Lists.newArrayList();
-        }
-    }
+//
+//    @RequestMapping("/read")
+//    public List<BookInfoVO> read(@RequestParam("id") Long id) {
+//        if (id == null || id <= 0) {
+//            return Lists.newArrayList();
+//        }
+//        BookInfoPO bookInfoPO = bookInfoPOMapper.selectByPrimaryKey(id);
+//        if (bookInfoPO == null) {
+//            return Lists.newArrayList();
+//        }
+//
+//        //书的内容
+//        try {
+//            String bookPathStr = bookInfoPO.getBookPath();
+//            Path bookPath = Paths.get(FILE_DIR_HOME + bookPathStr);
+//            String content = new String(Files.readAllBytes(bookPath));
+//
+//            String bookLogoStr = bookInfoPO.getBookLogo();
+//            Path bookLogoPath = Paths.get(FILE_DIR_HOME + bookLogoStr);
+//            byte[] imageBytes = Files.readAllBytes(bookLogoPath);
+//
+//
+//            BookInfoVO bookInfoVO = new BookInfoVO();
+//            bookInfoVO.setContent(content);
+//            bookInfoVO.setName(bookInfoPO.getBookName());
+//            bookInfoVO.setDetail(bookInfoPO.getBookDetail());
+//            bookInfoVO.setImageLogo(imageBytes);
+//            return Lists.newArrayList(bookInfoVO);
+//        } catch (IOException e) {
+//            return Lists.newArrayList();
+//        }
+//    }
 }

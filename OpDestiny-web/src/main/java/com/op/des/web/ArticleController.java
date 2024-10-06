@@ -16,6 +16,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 谈天论命
+ */
 @RestController
 @RequestMapping("/op/des/article")
 public class ArticleController {
@@ -43,6 +46,7 @@ public class ArticleController {
         itemVO.setId(articlePOWithBLOB.getId());
         itemVO.setIntroduction(articlePOWithBLOB.getIntroduction());
         itemVO.setImage(articlePOWithBLOB.getImage());
+        itemVO.setContent(articlePOWithBLOB.getContent());
         articleVO.setHot(itemVO);
 
         //所有的文章
@@ -54,9 +58,60 @@ public class ArticleController {
             item.setImage(articlePO.getImage());
             item.setOrd(articlePO.getOrd());
             item.setId(articlePO.getId());
+            item.setContent(articlePO.getContent());
             allArticles.add(item);
         });
         articleVO.setArticles(allArticles);
+        articleVO.setSuccess(true);
+        return articleVO;
+    }
+
+    @ResponseBody
+    @RequestMapping("/add")
+    public ArticleVO add(ArticleReq articleReq) {
+
+        ArticlePO articlePO = new ArticlePO();
+        articlePO.setTitle(articleReq.getTitle());
+        articlePO.setContent(articleReq.getContent());
+        articlePO.setIntroduction(articleReq.getIntroduction());
+        articlePO.setOrd(articleReq.getOrd());
+        articlePO.setImage(articleReq.getImage());
+        mapper.insertSelective(articlePO);
+        ArticleVO articleVO = new ArticleVO();
+        articleVO.setSuccess(true);
+        return articleVO;
+    }
+
+    @ResponseBody
+    @RequestMapping("/update")
+    public ArticleVO update(ArticleReq articleReq) {
+
+        ArticlePOCriteria example = new ArticlePOCriteria();
+        ArticlePOCriteria.Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(articleReq.getId());
+
+        ArticlePO articlePO = new ArticlePO();
+        articlePO.setTitle(articleReq.getTitle());
+        articlePO.setContent(articleReq.getContent());
+        articlePO.setOrd(articleReq.getOrd());
+        articlePO.setIntroduction(articleReq.getIntroduction());
+        articlePO.setImage(articleReq.getImage());
+        mapper.updateByExampleSelective(articlePO, example);
+        ArticleVO articleVO = new ArticleVO();
+        articleVO.setSuccess(true);
+        return articleVO;
+    }
+
+    @ResponseBody
+    @RequestMapping("/delete")
+    public ArticleVO delete(ArticleReq articleReq) {
+
+        ArticlePOCriteria example = new ArticlePOCriteria();
+        ArticlePOCriteria.Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(articleReq.getId());
+        mapper.deleteByExample(example);
+        ArticleVO articleVO = new ArticleVO();
+        articleVO.setSuccess(true);
         return articleVO;
     }
 }

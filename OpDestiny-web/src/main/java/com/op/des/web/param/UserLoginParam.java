@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 public class UserLoginParam {
     private String phone;
     private String token;
-
     private String smsCode;
+    private String type;
 
     String regex = "^1[3-9]\\d{9}$";
 

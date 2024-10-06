@@ -39,15 +39,16 @@ public class UserInfoController {
 
     private static Long _60_MIN = 60 * 60 * 1000L;
 
+    private static String LOGIN = "LOGIN";
+    private static String REGIST = "REGIST";
+
     @Autowired
     private UserInfoPOMapper userInfoPOMapper;
     @Value("${private.key}")
     private String privateKey;
     String regex = "^1[3-9]\\d{9}$";
     // 创建缓存
-    static LoadingCache<String, String> cache = CacheBuilder.newBuilder()
-            .maximumSize(100)
-            .expireAfterWrite(300, TimeUnit.SECONDS) // 缓存写入后5分钟过期
+    static LoadingCache<String, String> cache = CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(300, TimeUnit.SECONDS) // 缓存写入后5分钟过期
             .build(new CacheLoader<String, String>() {
                 // 缓存加载函数
                 @Override
@@ -64,21 +65,19 @@ public class UserInfoController {
             if (userVO != null) {
                 return userVO;
             }
-            //发送短信
-            //生成短信验证码
-            UserVO loginError = sendSms(userLoginParam, phone);
-            if (loginError != null) return loginError;
 
             UserInfoPOCriteria example = new UserInfoPOCriteria();
             UserInfoPOCriteria.Criteria criteria = example.createCriteria();
             criteria.andPhoneEqualTo(phone);
             List<UserInfoPO> userInfos = userInfoPOMapper.selectByExample(example);
             if (CollectionUtils.isEmpty(userInfos)) {
-                //保存用户手机号
-                UserInfoPO userInfoPO = new UserInfoPO();
-                userInfoPO.setPhone(phone);
-                userInfoPOMapper.insertSelective(userInfoPO);
+                userVO = new UserVO();
+                userVO.setStatus(100);
+                userVO.setMessage("用户未注册，请先注册！");
             }
+            //发送短信
+            UserVO loginError = sendSms(LOGIN, phone);
+            if (loginError != null) return loginError;
             return UserVO.createSendSms(phone);
         }
 
@@ -90,14 +89,14 @@ public class UserInfoController {
         } catch (Exception e) {
             //发送短信
             //生成短信验证码
-            UserVO loginError = sendSms(userLoginParam, phone);
+            UserVO loginError = sendSms(LOGIN, phone);
             if (loginError != null) return loginError;
             return UserVO.createSendSms(phone);
         }
         if (decoded == null) {
             //发送短信
             //生成短信验证码
-            UserVO loginError = sendSms(userLoginParam, phone);
+            UserVO loginError = sendSms(LOGIN, phone);
             if (loginError != null) return loginError;
             return UserVO.createSendSms(phone);
         }
@@ -105,7 +104,7 @@ public class UserInfoController {
         if (claims == null) {
             //发送短信
             //生成短信验证码
-            UserVO loginError = sendSms(userLoginParam, phone);
+            UserVO loginError = sendSms(LOGIN, phone);
             if (loginError != null) return loginError;
         }
 
@@ -116,16 +115,15 @@ public class UserInfoController {
         return UserVO.createLogin(generateToken(userid, username, phone));
     }
 
-    private UserVO sendSms(UserLoginParam userLoginParam, String phone) {
+    private UserVO sendSms(String type, String phone) {
         String smsCode = generateSmsCode();
         try {
-            if (!HttpUtils.doGet(userLoginParam.getPhone(), smsCode))
-                return UserVO.loginError();
+            if (!HttpUtils.doGet(phone, smsCode)) return UserVO.loginError();
         } catch (Exception exception) {
             return UserVO.loginError();
         }
         //保存验证码
-        cache.put(phone, smsCode);
+        cache.put(phone + "_" + type, smsCode);
         return null;
     }
 
@@ -139,8 +137,12 @@ public class UserInfoController {
         if (userVO != null) {
             return userVO;
         }
+        String type = LOGIN;
+        if (!StringUtils.isEmpty(userLoginParam.getType())) {
+            type = userLoginParam.getType();
+        }
         try {
-            String s = cache.get(userLoginParam.getPhone());
+            String s = cache.get(userLoginParam.getPhone() + "_" + type);
             if (Objects.equals(s, userLoginParam.getSmsCode())) {
                 UserInfoPOCriteria example = new UserInfoPOCriteria();
                 UserInfoPOCriteria.Criteria criteria = example.createCriteria();
@@ -158,7 +160,7 @@ public class UserInfoController {
 
     public boolean validatePhoneNumber(String phoneNum) {
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(regex);
+        Matcher matcher = pattern.matcher(phoneNum);
         return matcher.matches();
     }
 
@@ -201,32 +203,27 @@ public class UserInfoController {
             return userVO;
         }
 
+        //发送短信
+        sendSms(REGIST, registParam.getPhone());
 
         UserInfoPO userInfoPO = new UserInfoPO();
         userInfoPO.setPhone(registParam.getPhone());
         userInfoPO.setSex(registParam.getSex());
         userInfoPO.setUsername(registParam.getName());
         userInfoPO.setPasw(registParam.getPwd());
+        userInfoPO.setAge(registParam.getAge());
+        userInfoPO.setBirthaddress(registParam.getBirthAddress());
+        userInfoPO.setCurrentaddress(registParam.getCurrentAddress());
+        userInfoPO.setBirthday(registParam.getShengChen());
         int i = userInfoPOMapper.insertSelective(userInfoPO);
         if (i != 0) {
-            UserLoginInfo userLoginInfo = new UserLoginInfo();
-            //生成token
-            userLoginInfo.setUserId(userInfoPO.getId());
-            userLoginInfo.setPhone(userInfoPO.getPhone());
-            userLoginInfo.setLoginTime(System.currentTimeMillis());
-            userLoginInfo.setOutTime(System.currentTimeMillis() + _60_MIN);
-            return new UserVO(userInfoPO.getId(), userInfoPO.getUsername(), userInfoPO.getPhone(), generateToken(userInfoPO.getId(), userInfoPO.getUsername(), userInfoPO.getPhone()));
+            return UserVO.createSendSms(userInfoPO.getPhone());
         }
-        return new UserVO();
+        return UserVO.registError();
     }
 
     private String generateToken(Long userId, String userName, String phone) {
         JWTCreator.Builder jwtBuilder = JWT.create();
-        return jwtBuilder
-                .withClaim("userid", userId)
-                .withClaim("username", userName)
-                .withClaim("phone", phone)
-                .withExpiresAt(new Date(System.currentTimeMillis() + _60_MIN))
-                .sign(Algorithm.HMAC256(privateKey));
+        return jwtBuilder.withClaim("userid", userId).withClaim("username", userName).withClaim("phone", phone).withExpiresAt(new Date(System.currentTimeMillis() + _60_MIN)).sign(Algorithm.HMAC256(privateKey));
     }
 }

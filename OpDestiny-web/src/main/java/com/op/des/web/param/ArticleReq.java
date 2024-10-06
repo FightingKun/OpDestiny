@@ -7,6 +7,12 @@ import lombok.Data;
 public class ArticleReq {
     int pageSize;
     int pageNum;
+    long id;
+    String title;
+    String introduction;
+    String content;
+    int ord;
+    byte[] image;
 
     @JsonIgnore
     public int getOffset() {

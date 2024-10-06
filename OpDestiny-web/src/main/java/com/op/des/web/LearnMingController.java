@@ -4,12 +4,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 年运流变
+ * 研习命学
  */
 @RestController
-@RequestMapping("/op/des/year/yun")
-public class YearYunChangeController {
-
+@RequestMapping("/op/des/ming/lean")
+public class LearnMingController {
 
 
 }
