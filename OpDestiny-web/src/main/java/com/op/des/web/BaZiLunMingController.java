@@ -853,7 +853,7 @@ public class BaZiLunMingController {
         personDetailVO.setSex(req.getSex());
         personDetailVO.setLocation(req.getBirthAddressProvince() + req.getBirthAddressCity());
         //TODO
-        personDetailVO.setLocation("经度");
+//        personDetailVO.setLocation("经度");
         //生肖
         personDetailVO.setShuxiang(lunar.getYearShengXiao());
 
@@ -864,13 +864,35 @@ public class BaZiLunMingController {
         List<String> jiqis = new ArrayList<>();
         jiqis.add("生日" + req.getYear() + "年" + req.getMonth() + "月" + req.getDay() + "日" + req.getHour() + "时");
         String prevJieName = prevJie.getName();
-        jiqis.add(prevJieName + req.getYear() + "年" + req.getMonth() + "月" + req.getDay() + "日" + req.getHour() + "时");
+        jiqis.add(prevJieName + prevJie.getSolar().getYear() + "年" + prevJie.getSolar().getMonth() + "月" + prevJie.getSolar().getDay() + "日");
+        prevJie = lunar.getPrevJie();
         prevJieName = prevJie.getName();
         jiqis.add(prevJieName + req.getYear() + "年" + req.getMonth() + "月" + req.getDay() + "日" + req.getHour() + "时");
+        prevJie = lunar.getPrevJie();
         prevJieName = prevJie.getName();
         jiqis.add(prevJieName + req.getYear() + "年" + req.getMonth() + "月" + req.getDay() + "日" + req.getHour() + "时");
-        jiqis.add("生日于" + prevJieName + req.getYear() + "年" + req.getMonth() + "月" + req.getDay() + "日" + req.getHour() + "时");
+        jiqis.add("生于" + prevJieName + req.getYear() + "年" + req.getMonth() + "月" + req.getDay() + "日" + req.getHour() + "时");
         personDetailVO.setJieQis(jiqis);
+
+        //四柱五行
+        personDetailVO.setSiZhuWuXing(Lists.newArrayList(statisticsWuXing(lunar)));
+        boolean b = WuXing.deLing(lunar);
+        personDetailVO.setDeling(b ? lunar.getDayGan() + WuXing.getWuXingByDayGan(lunar.getDayGan()) + "得令" : null);
+        //八字提要
+        EightChar eightChar = lunar.getEightChar();
+        String birthYue = eightChar.getMonthZhi() + "月";
+        String birthDay = eightChar.getDayGan() + "日" + birthYue;
+        String birthTime = eightChar.getTimeGan() + eightChar.getTimeZhi() + "时";
+        BaZiTiYaoPOCriteria example = new BaZiTiYaoPOCriteria();
+        BaZiTiYaoPOCriteria.Criteria criteria = example.createCriteria();
+        criteria.andZhiDayEqualTo(birthDay);
+        criteria.andZhiMonthEqualTo(birthYue);
+        criteria.andZhiTimeEqualTo(birthTime);
+        List<BaZiTiYaoPO> baZiTiYaoPOS = baZiTiYaoPOMapper.selectByExample(example);
+        BaZiTiYaoPO baZiTiYaoPO = baZiTiYaoPOS.get(0);
+        String birth = lunar.getDayGan() + "日" + eightChar.getMonthZhi() + "月" + eightChar.getTime() + "时提要";
+        personDetailVO.setBaZiTiyao(Lists.newArrayList(birth + baZiTiYaoPO.getContent()));
+
         return personDetailVO;
     }
 

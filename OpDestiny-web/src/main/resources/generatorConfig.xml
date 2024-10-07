@@ -44,8 +44,8 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="userinfo"
-               domainObjectName="UserInfoPO">
+        <table tableName="qujilun"
+               domainObjectName="QuJiLunPO">
             <generatedKey column="id" sqlStatement="MySql"
                           identity="true"/>
         </table>

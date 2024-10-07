@@ -186,5 +186,9 @@ public class WuXing {
         return false;
     }
 
+    public static String getWuXingByDayGan(String dayGan){
+        return ganZhiWuXing.get(dayGan);
+    }
+
 
 }

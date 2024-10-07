@@ -23,8 +23,7 @@ public class SpecialQiVO implements Serializable {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    static class YinYuanVO{
-        private String name;
+    public static class YinYuanVO{
         private String content;
     }
 }
