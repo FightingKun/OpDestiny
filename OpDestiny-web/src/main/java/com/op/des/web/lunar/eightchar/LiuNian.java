@@ -172,6 +172,6 @@ public class LiuNian {
 
     public LiuYue getCurrentLiuYue() {
         int monthIndex = new Date().getMonth();
-        return getLiuYue()[monthIndex];
+        return getLiuYue()[monthIndex-1];
     }
 }

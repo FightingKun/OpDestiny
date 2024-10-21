@@ -76,7 +76,7 @@ public class MainPageController {
         mainPageVO.setYi(yiVO);
         //黄历
         HuangLiVO huangLiVO = new HuangLiVO();
-        huangLiVO.setDay(lunar.getDay());
+        huangLiVO.setDay(solar.getDay());
         huangLiVO.setTitleDate(solar.getYear() + "年" + solar.getMonth() + "月" + solar.getDay() + "日");
         huangLiVO.setWeekDay(lunar.getYearInChinese() + "年" + lunar.getMonthInChinese() + "月" + lunar.getDayInChinese() + " " + "第" + (lunar.getWeek() + 1) + "周 " + "周" + lunar.getWeekInChinese());
         huangLiVO.setGanzhi(Lists.newArrayList(lunar.getYearInGanZhi() + "年", lunar.getMonthInGanZhi() + "月", lunar.getDayInGanZhi() + "日"));

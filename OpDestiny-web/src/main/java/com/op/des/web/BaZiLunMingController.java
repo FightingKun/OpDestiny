@@ -161,7 +161,6 @@ public class BaZiLunMingController {
 
     private Pair<XiJiJianYiBaseInfo, String> getXiJiJianYi(String zhengBaGe, String mingJuQiangRuo, PaiPanInfoVO paiPanInfoVO, String wuxing) {
 
-
         String qiangRuo = mingJuQiangRuo.contains("弱") ? "弱" : "强";
         String zhengGe = null;
         if (zhengBaGe.equals("正官格")) {
@@ -586,14 +585,14 @@ public class BaZiLunMingController {
         //获取大运
         DaYun curDaYun = eightChar.getCurDaYun(req.getSex(), age);
         paiPanInfoVO.setDaYun(getDayun(sex, curDaYun, eightChar));
+
+        Lunar lunar = Solar.fromDate(new Date()).getLunar();
         //流年
-        LiuNian curLiuNian = curDaYun.getCurLiuNian(curYear);
-        paiPanInfoVO.setYearLiu(getLiuYearZhu(req, age, curYear, eightChar));
+        paiPanInfoVO.setYearLiu(getLiuYearZhu(req, lunar, eightChar));
         //流月
-        LiuYue currentLiuYue = curLiuNian.getCurrentLiuYue();
-        paiPanInfoVO.setMonthLiu(getLiuMonthZhu(req, currentLiuYue, eightChar));
+        paiPanInfoVO.setMonthLiu(getLiuMonthZhu(req, lunar, eightChar));
         //流日
-        paiPanInfoVO.setDayLiu(getLiuDayZhu(req, eightChar));
+        paiPanInfoVO.setDayLiu(getLiuDayZhu(req, lunar));
 
         //处理五合
         paiPanInfoVO.handleWuHe();
@@ -641,102 +640,86 @@ public class BaZiLunMingController {
         return daYun;
     }
 
-    private PaiPanZhuInfo getLiuDayZhu(BaZiPaiPanReq req, EightChar eightChar) {
+    private PaiPanZhuInfo getLiuDayZhu(BaZiPaiPanReq req,Lunar lunar) {
         PaiPanZhuInfo liuDayZhu = new PaiPanZhuInfo();
-        LocalDate today = LocalDate.now();
-        int year = today.getYear();
-        int month = today.getMonthValue();
-        int day = today.getDayOfMonth();
-
-        LiuDay liuDay = new LiuDay(year, month, day);
-        String ganZhi = liuDay.getGanZhi();
-        String gan = ganZhi.charAt(0) + "";
-        String zhi = ganZhi.charAt(1) + "";
+        EightChar eightChar= lunar.getEightChar();
 
         //流日-十神
         liuDayZhu.setName("流日");
-        liuDayZhu.setShiShen(liuDay.getShiShenGan(eightChar));
-        liuDayZhu.setGan(gan);
-        liuDayZhu.setZhi(zhi);
+        liuDayZhu.setShiShen(eightChar.getDayShiShenGan());
+        liuDayZhu.setGan(eightChar.getDayGan());
+        liuDayZhu.setZhi(eightChar.getDayZhi());
         //流日-藏干
-        liuDayZhu.setCangGan(liuDay.getHideGan());
+        liuDayZhu.setCangGan(eightChar.getDayHideGan());
         //流日-藏干-十神
-        liuDayZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), liuDay.getHideGan()));
+        liuDayZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), eightChar.getDayHideGan()));
         //流日-十二宫为
-        liuDayZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), zhi));
+        liuDayZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), eightChar.getDayZhi()));
         //流日-纳因
-        liuDayZhu.setNaYin(liuDay.getNaYin(zhi));
+        liuDayZhu.setNaYin(eightChar.getDayNaYin());
         //流日-神煞
-        liuDayZhu.setShenSha(liuDay.getShenSha(req.getStringSex(), eightChar));
+        liuDayZhu.setShenSha(eightChar.getDayShenSha());
         //流日-日/年柱空亡
-        if (liuDay.getKongWang(eightChar) != null) {
-            liuDayZhu.setKongWang(liuDay.getKongWang(eightChar));
+        if (eightChar.dayKongWang() != null) {
+            liuDayZhu.setKongWang(eightChar.dayKongWang());
         }
         return liuDayZhu;
     }
 
-    private PaiPanZhuInfo getLiuMonthZhu(BaZiPaiPanReq req, LiuYue currentLiuYue, EightChar eightChar) {
+    private PaiPanZhuInfo getLiuMonthZhu(BaZiPaiPanReq req, Lunar lunar, EightChar eightChar) {
         PaiPanZhuInfo liuMonthZhu = new PaiPanZhuInfo();
-        String ganZhi = currentLiuYue.getGanZhi();
-        String gan = ganZhi.charAt(0) + "";
-        String zhi = ganZhi.charAt(1) + "";
-        liuMonthZhu.setGan(gan);
-        liuMonthZhu.setGan(zhi);
+        EightChar eightChar1 = lunar.getEightChar();
         liuMonthZhu.setName("流月");
         //流月-十神
-        liuMonthZhu.setShiShen(currentLiuYue.getShiShenGan(eightChar));
+        liuMonthZhu.setShiShen(eightChar1.getMonthShiShenGan());
         //流月-干
-        liuMonthZhu.setGan(gan);
+        liuMonthZhu.setGan(eightChar1.getMonthGan());
         //流月-支
-        liuMonthZhu.setZhi(zhi);
+        liuMonthZhu.setZhi(eightChar1.getMonthZhi());
         //流月-藏干
-        liuMonthZhu.setCangGan(currentLiuYue.getHideGan());
+        liuMonthZhu.setCangGan(eightChar1.getMonthHideGan());
         //流月-藏干-十神
-        liuMonthZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), currentLiuYue.getHideGan()));
+        liuMonthZhu.setCangGanShishen(eightChar1.getShiShenByGan(eightChar1.getDayGan(), eightChar1.getMonthHideGan()));
         //流月-十二宫为
-        liuMonthZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), zhi));
+        liuMonthZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), eightChar1.getMonthZhi()));
         //流月-纳因
-        liuMonthZhu.setNaYin(currentLiuYue.getNaYin(zhi));
+        liuMonthZhu.setNaYin(eightChar1.getMonthNaYin());
         //流月-神煞
-        liuMonthZhu.setShenSha(currentLiuYue.getShenSha(req.getStringSex(), eightChar));
+        liuMonthZhu.setShenSha(eightChar1.getMonthShenSha());
         //流月-日/年柱空亡
-        if (currentLiuYue.getKongWang(eightChar) != null) {
-            liuMonthZhu.setKongWang(currentLiuYue.getKongWang(eightChar));
+        if (eightChar1.monthKongWang() != null) {
+            liuMonthZhu.setKongWang(eightChar1.monthKongWang());
         }
         return liuMonthZhu;
     }
 
-    private static PaiPanZhuInfo getLiuYearZhu(BaZiPaiPanReq req, int age, int curYear, EightChar eightChar) {
+    private static PaiPanZhuInfo getLiuYearZhu(BaZiPaiPanReq req, Lunar lunar, EightChar eightChar) {
         PaiPanZhuInfo liuYearZhu = new PaiPanZhuInfo();
         //获取大运
-        DaYun curDaYun = eightChar.getCurDaYun(req.getSex(), age);
+        String yearGan = lunar.getYearGan();
+        String yearZhi = lunar.getYearZhi();
+        EightChar eightChar1 = lunar.getEightChar();
         //流年
-        LiuNian curLiuYear = curDaYun.getCurLiuNian(curYear);
-        String ganZhi = curLiuYear.getGanZhi();
-        String gan = ganZhi.charAt(0) + "";
-        String zhi = ganZhi.charAt(1) + "";
-        liuYearZhu.setGan(gan);
-        liuYearZhu.setZhi(zhi);
         liuYearZhu.setName("流年");
         //流年-十神
-        liuYearZhu.setShiShen(curLiuYear.getShiShenGan(eightChar));
+        liuYearZhu.setShiShen(eightChar1.getYearShiShenGan());
         //流年-干
-        liuYearZhu.setGan(gan);
+        liuYearZhu.setGan(yearGan);
         //流年-支
-        liuYearZhu.setZhi(zhi);
+        liuYearZhu.setZhi(yearZhi);
         //流年-藏干
-        liuYearZhu.setCangGan(curLiuYear.getHideGan());
+        liuYearZhu.setCangGan(eightChar1.getYearHideGan());
         //流年-藏干-十神
-        liuYearZhu.setCangGanShishen(eightChar.getShiShenByGan(eightChar.getDayGan(), curLiuYear.getHideGan()));
+        liuYearZhu.setCangGanShishen(eightChar1.getShiShenByGan(eightChar1.getDayGan(), eightChar1.getYearHideGan()));
         //流年-十二宫为
-        liuYearZhu.setShiErGongWei(eightChar.getShiErGongWei(eightChar.getDayGan(), zhi));
+        liuYearZhu.setShiErGongWei(eightChar1.getShiErGongWei(eightChar1.getDayGan(), yearZhi));
         //流年-纳因
-        liuYearZhu.setNaYin(curLiuYear.getNaYin(zhi));
+        liuYearZhu.setNaYin(eightChar1.getYearNaYin());
         //流年-神煞
-        liuYearZhu.setShenSha(curLiuYear.getShenSha(req.getStringSex(), eightChar));
+        liuYearZhu.setShenSha(eightChar1.getYearShenSha());
         //流年-日/年柱空亡
-        if (curLiuYear.getKongWang(eightChar) != null) {
-            liuYearZhu.setKongWang(curLiuYear.getKongWang(eightChar));
+        if (eightChar1.yearKongWang() != null) {
+            liuYearZhu.setKongWang(eightChar1.yearKongWang());
         }
         return liuYearZhu;
     }

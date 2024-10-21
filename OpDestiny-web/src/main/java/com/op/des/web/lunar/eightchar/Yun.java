@@ -203,7 +203,7 @@ public class Yun {
    * @return 大运
    */
   public DaYun[] getDaYun() {
-    return getDaYun(11);
+    return getDaYun(10);
   }
 
   /**

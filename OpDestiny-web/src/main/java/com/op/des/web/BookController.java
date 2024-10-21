@@ -5,9 +5,11 @@ import com.op.des.web.dao.mapper.BookInfoPOMapper;
 import com.op.des.web.dao.po.BookInfoPO;
 import com.op.des.web.dao.po.BookInfoPOCriteria;
 import com.op.des.web.vo.BookInfoVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,15 +28,16 @@ import java.util.stream.Collectors;
  * 命理典籍
  */
 @RestController()
-@RequestMapping("/op/des/book")
+@Slf4j
 public class BookController {
 
     public static final String FILE_DIR_HOME = "/opt/op/file/";
-    public static final String BOOK_BASE_URL = "152.136.43.219:8080/book/";
+//    public static final String FILE_DIR_HOME = "/Users/kun/work/ops/";
+    public static final String BOOK_BASE_URL = "152.136.43.219:8000/op/book/";
     @Autowired
     BookInfoPOMapper bookInfoPOMapper;
 
-    @RequestMapping("/list")
+    @RequestMapping("/op/des/book/list")
     public List<BookInfoVO> listBooks() {
         BookInfoPOCriteria example = new BookInfoPOCriteria();
 
@@ -50,10 +53,10 @@ public class BookController {
         }).collect(Collectors.toList());
     }
 
-    @RequestMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
-                                             @RequestParam("detail") String detail,
-                                             @RequestParam("image") MultipartFile image) {
+    @PostMapping("/op/des/book/upload")
+    public ResponseEntity<String> uploadFile(@RequestParam(value = "file") MultipartFile file,
+                                             @RequestParam(value = "detail") String detail,
+                                             @RequestParam(value = "image") MultipartFile image) {
         if (file.isEmpty() || image.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("文件为空");
         }
@@ -66,17 +69,18 @@ public class BookController {
             String filePath = FILE_DIR_HOME + file.getOriginalFilename();
             file.transferTo(new File(filePath));
             String imagePath = FILE_DIR_HOME + image.getOriginalFilename();
-            file.transferTo(new File(imagePath));
+            image.transferTo(new File(imagePath));
 
             //文件信息落库
             BookInfoPO bookInfoPO = new BookInfoPO();
             bookInfoPO.setBookDetail(detail);
             bookInfoPO.setBookLogo(BOOK_BASE_URL + image.getOriginalFilename());
-            bookInfoPO.setBookName(file.getName());
+            bookInfoPO.setBookName(file.getOriginalFilename());
             bookInfoPO.setBookPath(BOOK_BASE_URL + file.getOriginalFilename());
-            bookInfoPOMapper.insertSelective(bookInfoPO);
+            int bookId = bookInfoPOMapper.insertSelective(bookInfoPO);
             return ResponseEntity.status(HttpStatus.OK).body("文件上传成功");
         } catch (IOException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body("文件上传失败");
         }
     }

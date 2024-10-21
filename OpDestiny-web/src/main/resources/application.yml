@@ -2,9 +2,10 @@ server:
   port: 8080
 
 spring:
-  web:
-    resources:
-      static-locations: "file:/Users/kun/work/static/"
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   datasource:
     username: ops
     password: ops2024.
@@ -31,9 +32,8 @@ wechat:
     notifyUrl: https://152.136.43.219/op/des/order/notify
 
 
-file:
-  bucketName: def_bucket
-  local:
-    enable: true
-    base-path: ///opt/op/file/
-    baseUrl: http://152.136.43.219:8080/book
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+

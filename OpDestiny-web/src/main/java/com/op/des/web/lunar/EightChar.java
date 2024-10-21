@@ -667,7 +667,7 @@ public class EightChar {
      * @return 五行
      */
     public String getDayWuXing() {
-        return LunarUtil.WU_XING_GAN.get(getDayGan()) + LunarUtil.WU_XING_ZHI.get(getDayZhi());
+        return LunarUtil.WU_XING_GAN.get(getDayGan());
     }
 
     /**
